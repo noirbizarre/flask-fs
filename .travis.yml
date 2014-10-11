@@ -1,0 +1,40 @@
+language: python
+sudo: required
+services:
+  - docker
+python:
+  - 2.7
+  - 3.3
+  - 3.4
+  - 3.5
+  - pypy
+  - pypy3
+
+env:
+  global:
+    - DOCKER_VERSION=1.10.2-0~trusty
+    - DOCKER_COMPOSE_VERSION=1.7.0
+
+before_install:
+  # upgrade docker-engine to specific version
+  - sudo apt-get -o Dpkg::Options::="--force-confnew" install -y docker-engine=${DOCKER_VERSION}
+
+  # reinstall docker-compose at specific version
+  - sudo rm /usr/local/bin/docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+  - chmod +x docker-compose
+  - sudo mv docker-compose /usr/local/bin
+
+install:
+  - pip install -e .[test]
+  - pip install coverage coveralls
+before_script:
+  - docker-compose up -d
+script:
+  - nosetests --with-coverage
+after_success:
+  - coveralls --rcfile=coverage.rc
+
+matrix:
+  allow_failures:
+    - python: pypy3

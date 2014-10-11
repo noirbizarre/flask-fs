@@ -1,0 +1,6 @@
+nose
+rednose
+mock
+fake-factory
+flask-mongoengine
+pillow
