@@ -7,10 +7,10 @@ __all__ = [i.encode('ascii') for i in ('BaseBackend', 'DEFAULT_BACKEND', 'BUILTI
 
 
 BUILTIN_BACKENDS = {
-    'local': 'flask.ext.fs.backends.local.LocalBackend',
-    's3': 'flask.ext.fs.backends.s3.S3Backend',
-    'swift': 'flask.ext.fs.backends.swift.SwiftBackend',
-    'grids': 'flask.ext.fs.backends.gridfs.GridFsBackend',
+    'local': 'flask_fs.backends.local.LocalBackend',
+    's3': 'flask_fs.backends.s3.S3Backend',
+    'swift': 'flask_fs.backends.swift.SwiftBackend',
+    'grids': 'flask_fs.backends.gridfs.GridFsBackend',
 }
 
 DEFAULT_BACKEND = 'local'

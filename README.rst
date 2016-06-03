@@ -51,7 +51,7 @@ Quick start
 .. code-block:: python
 
     from flask import Flask
-    from flask.ext import fs
+    import flask_fs as fs
 
     app = Flask(__name__)
     fs.init_app(app)

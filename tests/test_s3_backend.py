@@ -6,8 +6,8 @@ import logging
 from . import TestCase
 from .test_backend_mixin import BackendTestMixin
 
-from flask.ext.fs.backends.s3 import S3Backend
-from flask.ext.fs.storage import Config
+from flask_fs.backends.s3 import S3Backend
+from flask_fs.storage import Config
 
 import boto3
 

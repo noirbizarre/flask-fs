@@ -22,7 +22,7 @@ class TestCase(unittest.TestCase):
         self.client = self.app.test_client()
 
     def configure(self, *storages, **configs):
-        from flask.ext import fs
+        import flask_fs as fs
         for key, value in configs.items():
             self.app.config[key] = value
         fs.init_app(self.app, *storages)

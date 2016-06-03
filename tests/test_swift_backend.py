@@ -6,8 +6,8 @@ import swiftclient
 from . import TestCase
 from .test_backend_mixin import BackendTestMixin
 
-from flask.ext.fs.backends.swift import SwiftBackend
-from flask.ext.fs.storage import Config
+from flask_fs.backends.swift import SwiftBackend
+from flask_fs.storage import Config
 
 USER = 'test:tester'
 KEY = 'testing'

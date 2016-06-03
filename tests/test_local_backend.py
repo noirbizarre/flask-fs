@@ -9,8 +9,8 @@ from os.path import join, exists
 from . import TestCase
 from .test_backend_mixin import BackendTestMixin
 
-from flask.ext.fs.backends.local import LocalBackend
-from flask.ext.fs.storage import Config
+from flask_fs.backends.local import LocalBackend
+from flask_fs.storage import Config
 
 
 class LocalBackendTest(BackendTestMixin, TestCase):

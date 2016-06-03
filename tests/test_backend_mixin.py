@@ -9,13 +9,13 @@ from . import fake
 class BackendTestMixin(object):
 
     def put_file(self, filename, content):
-        raise NotImplementedError('You should implement this method')
+        raise NotImplementedError('You must implement this method')
 
     def get_file(self, filename):
-        raise NotImplementedError('You should implement this method')
+        raise NotImplementedError('You must implement this method')
 
     def file_exists(self, filename):
-        raise NotImplementedError('You should implement this method')
+        raise NotImplementedError('You must implement this method')
 
     def assert_bin_equal(self, filename, expected):
         data = self.get_file(filename)

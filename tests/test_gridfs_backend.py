@@ -7,8 +7,8 @@ from gridfs import GridFS
 from . import TestCase, fake
 from .test_backend_mixin import BackendTestMixin
 
-from flask.ext.fs.backends.gridfs import GridFsBackend
-from flask.ext.fs.storage import Config
+from flask_fs.backends.gridfs import GridFsBackend
+from flask_fs.storage import Config
 
 TEST_DB = 'fstest'
 

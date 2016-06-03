@@ -7,9 +7,9 @@ import tempfile
 
 from PIL import Image
 
-from flask.ext import fs
-from flask.ext.fs.mongo import FileField, ImageField
-from flask.ext.mongoengine import MongoEngine
+import flask_fs as fs
+from flask_fs.mongo import FileField, ImageField
+from flask_mongoengine import MongoEngine
 
 from . import TestCase, BIN_FILE
 

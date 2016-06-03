@@ -8,7 +8,7 @@ from flask import url_for
 
 from . import TestCase, fake
 
-from flask.ext import fs
+import flask_fs as fs
 
 
 class MockBackend(fs.BaseBackend):

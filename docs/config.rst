@@ -61,7 +61,7 @@ Given a storage declared like this:
 
 .. code-block:: python
 
-    from flask.ext import fs
+    import flask_fs as fs
 
     avatars = fs.Storage('avatars', fs.IMAGES)
 

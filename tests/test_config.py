@@ -5,8 +5,8 @@ from os.path import join
 
 from flask import url_for
 
-from flask.ext.fs import Storage, DEFAULTS
-from flask.ext.fs.backends.local import LocalBackend
+from flask_fs import Storage, DEFAULTS
+from flask_fs.backends.local import LocalBackend
 
 from . import TestCase
 

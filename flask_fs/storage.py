@@ -181,10 +181,12 @@ class Storage(object):
 
     def file_allowed(self, storage, basename):
         '''
-        This tells whether a file is allowed. It should return `True` if the
-        given `werkzeug.FileStorage` object can be saved with the given
-        basename, and `False` if it can't. The default implementation just
-        checks the extension, so you can override this if you want.
+        This tells whether a file is allowed.
+
+        It should return `True` if the given :class:`~werkzeug.FileStorage` object
+        can be saved with the given basename, and `False` if it can't.
+        The default implementation just checks the extension,
+        so you can override this if you want.
 
         :param storage: The `werkzeug.FileStorage` to check.
         :param basename: The basename it will be saved under.

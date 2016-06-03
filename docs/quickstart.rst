@@ -11,7 +11,7 @@ Flask-FS need to be initialized with an application:
 .. code-block:: python
 
     from flask import Flask
-    from flask.ext import fs
+    import flask_fs as fs
 
     app = Flask(__name__)
     fs.init_app(app)
@@ -24,7 +24,7 @@ You need to declare some storages before being able to read or write files.
 
 .. code-block:: python
 
-    from flask.ext import fs
+    import flask_fs as fs
 
     images = fs.Storage('images')
     uploads = fs.Storage('uploads')
@@ -34,7 +34,7 @@ You can limit the allowed file types.
 
 .. code-block:: python
 
-    from flask.ext import fs
+    import flask_fs as fs
 
     images = fs.Storage('images', fs.IMAGES)
     custom = fs.Storage('custom', ('bat', 'sh'))
@@ -43,7 +43,7 @@ You can also specify allowed extensions by exclusion:
 
 .. code-block:: python
 
-    from flask.ext import fs
+    import flask_fs as fs
 
     WITHOUT_SCRIPTS = fs.AllExcept(fs.SCRIPTS + fs.EXECUTABLES)
     store = fs.Storage('store', WITHOUT_SCRIPTS)
@@ -55,7 +55,7 @@ You can allow overwriting with the `overwrite` parameter in  :class:`Storage` cl
 
 .. code-block:: python
 
-    from flask.ext import fs
+    import flask_fs as fs
 
     store = fs.Storage('store', overwrite=True)
 
