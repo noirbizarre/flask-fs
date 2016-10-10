@@ -16,6 +16,7 @@ log = logging.getLogger(__name__)
 
 
 class FileReference(object):
+    '''Implements the FileField interface'''
     def __init__(self, fs=None, filename=None, upload_to=None, basename=None,
                  instance=None, name=None):
         self.fs = fs
@@ -69,6 +70,7 @@ class FileReference(object):
 
 
 class ImageReference(FileReference):
+    '''Implements the ImageField interface'''
     def __init__(self, original=None, max_size=None, thumbnail_sizes=None, thumbnails=None,
                  bbox=None, **kwargs):
         super(ImageReference, self).__init__(**kwargs)
@@ -144,6 +146,7 @@ class ImageReference(FileReference):
         self._original = value
 
     def thumbnail(self, size):
+        '''Get the thumbnail filename for a given size'''
         if size in self.thumbnail_sizes:
             return self.thumbnails.get(str(size))
         else:

@@ -52,7 +52,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Flask-FS'
-copyright = u'2014, Axel Haustant'
+copyright = u'2016, Axel Haustant'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -322,5 +322,5 @@ intersphinx_mapping = {
     'python': ('http://docs.python.org/', None),
     'werkzeug': ('http://werkzeug.pocoo.org/docs/', None),
     'boto': ('https://boto3.readthedocs.org/en/latest/', None),
-    'mongo': ('http://mongoengine-odm.readthedocs.org/en/latest/', None),
+    'mongo': ('http://docs.mongoengine.org/', None),
 }
