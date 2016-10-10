@@ -1,4 +1,4 @@
-invoke
+invoke>=0.13
 tox
 -r test.pip
 -r doc.pip
