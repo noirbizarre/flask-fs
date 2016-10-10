@@ -16,6 +16,6 @@ services:
       - "9000:9000"
 
   swift:
-    image: aerofs/swift
+    image: morrisjobke/docker-swift-onlyone
     ports:
       - "8080:8080"
