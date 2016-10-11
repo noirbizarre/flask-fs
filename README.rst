@@ -12,7 +12,7 @@ Flask-FS
     :target: https://requires.io/github/noirbizarre/flask-fs/requirements/?branch=master
     :alt: Requirements Status
 .. image:: https://readthedocs.org/projects/flask-fs/badge/?version=latest
-    :target: http://flask-fs.readthedocs.org/en/0.2.0/
+    :target: http://flask-fs.readthedocs.org/en/latest/
     :alt: Documentation status
 
 Simple and easy file storages for Flask
@@ -66,4 +66,4 @@ Quick start
 Documentation
 =============
 
-The full documentation is hosted `on Read the Docs <http://flask-fs.readthedocs.org/en/0.2.0/>`_
+The full documentation is hosted `on Read the Docs <http://flask-fs.readthedocs.org/en/latest/>`_
