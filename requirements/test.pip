@@ -2,5 +2,5 @@ nose
 rednose
 mock
 fake-factory
-flask-mongoengine
+flask-mongoengine==0.8
 pillow
