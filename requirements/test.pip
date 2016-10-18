@@ -1,6 +1,6 @@
 nose
 rednose
-mock
+mock==2.0.0
 fake-factory
 flask-mongoengine
 pillow
