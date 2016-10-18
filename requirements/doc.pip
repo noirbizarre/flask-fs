@@ -4,4 +4,4 @@
 sphinx
 alabaster
 pillow
-flask-mongoengine
+flask-mongoengine==0.8
