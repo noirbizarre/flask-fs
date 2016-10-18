@@ -3,4 +3,4 @@ rednose
 mock
 fake-factory
 flask-mongoengine
-pillow
+pillow==3.4.2
