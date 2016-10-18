@@ -1,2 +1,2 @@
 flask
-six
+six==1.10.0
