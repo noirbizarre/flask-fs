@@ -1,5 +1,5 @@
 nose
-rednose
+rednose==1.2.1
 mock
 fake-factory
 flask-mongoengine
