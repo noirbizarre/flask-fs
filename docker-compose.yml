@@ -11,7 +11,7 @@ services:
     environment:
       MINIO_ACCESS_KEY: ABCDEFGHIJKLMNOQRSTU
       MINIO_SECRET_KEY: abcdefghiklmnoqrstuvwxyz1234567890abcdef
-    command: /export
+    command: server /export
     ports:
       - "9000:9000"
 
