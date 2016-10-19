@@ -1,6 +1,6 @@
 nose
 rednose
 mock
-fake-factory
+fake-factory==0.7.2
 flask-mongoengine
 pillow
