@@ -70,7 +70,6 @@ setup(
     description=__import__('flask_fs').__description__,
     long_description=long_description,
     url='https://github.com/noirbizarre/flask-fs',
-    download_url='http://pypi.python.org/pypi/flask-fs',
     author='Axel Haustant',
     author_email='noirbizarre@gmail.com',
     packages=find_packages(),
