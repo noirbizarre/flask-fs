@@ -11,7 +11,7 @@ Flask-FS
 .. image:: https://requires.io/github/noirbizarre/flask-fs/requirements.svg?branch=master
     :target: https://requires.io/github/noirbizarre/flask-fs/requirements/?branch=master
     :alt: Requirements Status
-.. image:: https://readthedocs.org/projects/flask-fs/badge/?version=0.2.1
+.. image:: https://readthedocs.org/projects/flask-fs/badge/?version=latest
     :target: http://flask-fs.readthedocs.org/en/latest/
     :alt: Documentation status
 
