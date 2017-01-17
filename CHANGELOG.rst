@@ -4,7 +4,7 @@ Changelog
 Current
 -------
 
-- Nothing yet
+- Expose Python 3 compatibility
 
 0.2.0 (2016-10-11)
 ------------------
