@@ -1,6 +1,6 @@
 nose
 rednose
 mock
-fake-factory
+Faker
 flask-mongoengine
 pillow
