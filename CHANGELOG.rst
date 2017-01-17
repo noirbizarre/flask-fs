@@ -1,8 +1,8 @@
 Changelog
 =========
 
-Current
--------
+0.2.1 (2017-01-17)
+------------------
 
 - Expose Python 3 compatibility
 
