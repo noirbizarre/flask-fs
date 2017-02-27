@@ -8,64 +8,63 @@ from flask import url_for
 from flask_fs import Storage, DEFAULTS
 from flask_fs.backends.local import LocalBackend
 
-from . import TestCase
+
+def test_default_configuration(app):
+    app.configure()
+    assert not app.config['FS_SERVE']
+    assert app.config['FS_ROOT'] == join(app.instance_path, 'fs')
+    assert app.config['FS_PREFIX'] is None
+    assert app.config['FS_URL'] is None
 
 
-class TestConfiguration(TestCase):
-    def test_default_configuration(self):
-        self.configure()
-        self.assertFalse(self.app.config['FS_SERVE'])
-        self.assertEqual(self.app.config['FS_ROOT'], join(self.app.instance_path, 'fs'))
-        self.assertIsNone(self.app.config['FS_PREFIX'])
-        self.assertIsNone(self.app.config['FS_URL'])
+def test_default_debug_configuration(app):
+    app.configure(DEBUG=True)
+    assert app.config['FS_SERVE']
+    assert app.config['FS_ROOT'] == join(app.instance_path, 'fs')
+    assert app.config['FS_PREFIX'] is None
+    assert app.config['FS_URL'] is None
 
-    def test_default_debug_configuration(self):
-        self.configure(DEBUG=True)
-        self.assertTrue(self.app.config['FS_SERVE'])
-        self.assertEqual(self.app.config['FS_ROOT'], join(self.app.instance_path, 'fs'))
-        self.assertIsNone(self.app.config['FS_PREFIX'])
-        self.assertIsNone(self.app.config['FS_URL'])
 
-    def test_not_configured(self):
-        files = Storage('files')
-        self.assertIsNone(files.backend)
-        self.assertEqual(files.config, {})
+def test_not_configured():
+    files = Storage('files')
+    assert files.backend is None
+    assert files.config == {}
 
-    def test_default_f(self):
-        files = Storage('files')
-        self.configure(files)
 
-        self.assertEqual(files.name, 'files')
-        self.assertEqual(files.extensions, DEFAULTS)
-        self.assertIsInstance(files.backend, LocalBackend)
-        with self.app.test_request_context():
-            self.assertEqual(files.base_url, url_for('fs.get_file', fs='files', filename='', _external=True))
+def test_default_f(app):
+    files = Storage('files')
+    app.configure(files)
 
-        self.assertIn('files', self.app.extensions['fs'])
-        self.assertEqual(self.app.extensions['fs']['files'], files)
+    assert files.name == 'files'
+    assert files.extensions == DEFAULTS
+    assert isinstance(files.backend, LocalBackend)
+    assert files.base_url == url_for('fs.get_file', fs='files', filename='', _external=True)
 
-    def test_custom_prefix(self):
-        files = Storage('files')
-        self.configure(files, FS_PREFIX='/test')
+    assert 'files' in app.extensions['fs']
+    assert app.extensions['fs']['files'] == files
 
-        self.assertEqual(files.name, 'files')
-        self.assertEqual(files.extensions, DEFAULTS)
-        self.assertIsInstance(files.backend, LocalBackend)
-        with self.app.test_request_context():
-            self.assertEqual(files.base_url, url_for('fs.get_file', fs='files', filename='', _external=True))
-            self.assertEqual(files.base_url, 'http://localhost/test/files/')
 
-    def test_custom_url(self):
-        files = Storage('files')
-        self.configure(files, FS_URL='http://somewhere.net/test/')
-        with self.app.test_request_context():
-            self.assertEqual(files.base_url, 'http://somewhere.net/test/files/')
+def test_custom_prefix(app):
+    files = Storage('files')
+    app.configure(files, FS_PREFIX='/test')
 
-    def test_custom_f_url(self):
-        files = Storage('files')
-        self.configure(files,
-            FS_URL='http://somewhere.net/test/',
-            FILES_FS_URL='http://somewhere-else.net/test/'
-        )
-        with self.app.test_request_context():
-            self.assertEqual(files.base_url, 'http://somewhere-else.net/test/')
+    assert files.name == 'files'
+    assert files.extensions == DEFAULTS
+    assert isinstance(files.backend, LocalBackend)
+    assert files.base_url == url_for('fs.get_file', fs='files', filename='', _external=True)
+    assert files.base_url == 'http://localhost/test/files/'
+
+
+def test_custom_url(app):
+    files = Storage('files')
+    app.configure(files, FS_URL='http://somewhere.net/test/')
+    assert files.base_url == 'http://somewhere.net/test/files/'
+
+
+def test_custom_f_url(app):
+    files = Storage('files')
+    app.configure(files,
+        FS_URL='http://somewhere.net/test/',
+        FILES_FS_URL='http://somewhere-else.net/test/'
+    )
+    assert files.base_url == 'http://somewhere-else.net/test/'
