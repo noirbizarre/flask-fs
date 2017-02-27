@@ -1,6 +1,5 @@
-nose
-rednose
+pytest
 mock
-Faker
+pytest-faker
 flask-mongoengine
 pillow

@@ -2,8 +2,6 @@
 from __future__ import unicode_literals, division
 
 import filecmp
-import shutil
-import tempfile
 
 from PIL import Image
 
@@ -11,36 +9,53 @@ import flask_fs as fs
 from flask_fs.mongo import FileField, ImageField
 from flask_mongoengine import MongoEngine
 
+import pytest
+
 from . import TestCase, BIN_FILE
 
 db = MongoEngine()
 
 
-class MongoEngineTestCase(TestCase):
-    def setUp(self):
-        super(MongoEngineTestCase, self).setUp()
-        self.app.config['MONGODB_SETTINGS'] = {'DB': 'flask_fs_tests'}
-        self._instance_path = self.app.instance_path
-        self.app.instance_path = tempfile.mkdtemp()
-        self.storage = fs.Storage('test', fs.ALL)
-        fs.init_app(self.app, self.storage)
-        db.init_app(self.app)
-        self._ctx = self.app.test_request_context()
-        self._ctx.push()
-
-    def tearsDown(self):  # noqa
-        '''Cleanup the mess'''
-        super(MongoEngineTestCase, self).tearsDown()
-        shutil.rmtree(self.app.instance_path)
-        self.app.instance_path = self._instance_path
-        db_name = self.app.config['MONGODB_SETTINGS']['DB']
+@pytest.fixture
+def app(app, tmpdir):
+    # self._instance_path = self.app.instance_path
+    app.instance_path = tmpdir
+    storage = app.storage = fs.Storage('test', fs.ALL)
+    fs.init_app(app, storage)
+    db.init_app(app)
+    with app.test_request_context():
+        yield app
+        db_name = app.config['MONGODB_DB']
         db.connection.drop_database(db_name)
-        self._ctx.pop()
-        del self._ctx
+    # self._ctx.pop()
+    # del self._ctx
 
 
-class FileFieldTest(MongoEngineTestCase):
-    def test_default_validate(self):
+# class MongoEngineTestCase(TestCase):
+#     def setUp(self):
+#         super(MongoEngineTestCase, self).setUp()
+#         self.app.config['MONGODB_SETTINGS'] = {'DB': 'flask_fs_tests'}
+#         self._instance_path = self.app.instance_path
+#         self.app.instance_path = tempfile.mkdtemp()
+#         self.storage = fs.Storage('test', fs.ALL)
+#         fs.init_app(self.app, self.storage)
+#         db.init_app(self.app)
+#         self._ctx = self.app.test_request_context()
+#         self._ctx.push()
+#
+#     def tearsDown(self):  # noqa
+#         '''Cleanup the mess'''
+#         super(MongoEngineTestCase, self).tearsDown()
+#         shutil.rmtree(self.app.instance_path)
+#         self.app.instance_path = self._instance_path
+#         db_name = self.app.config['MONGODB_SETTINGS']['DB']
+#         db.connection.drop_database(db_name)
+#         self._ctx.pop()
+#         del self._ctx
+
+
+class FileFieldTest(object):
+    def test_default_validate(self, ):
         class Tester(db.Document):
             file = FileField(fs=self.storage)
 
@@ -315,6 +330,48 @@ class ImageFieldTest(MongoEngineTestCase):
             self.assertEqual(stored.size, original.size)
 
     def test_save_max_size(self):
+        max_size = 150
+
+        class Tester(db.Document):
+            image = ImageField(fs=self.storage, max_size=max_size)
+
+        filename = 'flask.png'
+        filename_original = 'flask-original.png'
+
+        tester = Tester()
+        tester.image.save(self.resource())
+        tester.validate()
+
+        self.assertTrue(tester.image)
+        self.assertEqual(str(tester.image), tester.image.url)
+        self.assertEqual(tester.image.filename, filename)
+        self.assertEqual(tester.image.original, filename_original)
+        self.assertIn(filename, self.storage)
+        self.assertEqual(tester.to_mongo(), {
+            'image': {
+                'filename': filename,
+                'original': filename_original,
+            }
+        })
+
+        tester.save()
+        tester = Tester.objects.get(id=tester.id)
+        self.assertEqual(tester.image.filename, filename)
+        self.assertEqual(tester.image.original, filename_original)
+
+        with self.image() as f:
+            with open(self.storage.path(filename_original), 'rb') as f_orig:
+                with open(self.storage.path(filename), 'rb') as f_resized:
+                    source = Image.open(f)
+                    original = Image.open(f_orig)
+                    resized = Image.open(f_resized)
+                    self.assertEqual(original.size, source.size)
+                    self.assertLessEqual(resized.size[0], max_size)
+                    self.assertLessEqual(resized.size[1], max_size)
+                    self.assertAlmostEqual(resized.size[0] / resized.size[1],
+                                           source.size[0] / source.size[1], 1)
+
+    def test_save_optimized(self):
         max_size = 150
 
         class Tester(db.Document):
