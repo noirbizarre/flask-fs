@@ -2,30 +2,10 @@
 from __future__ import unicode_literals
 
 import pytest
-import mock
 
 from flask import url_for
 
 import flask_fs as fs
-
-
-class MockBackend(fs.BaseBackend):
-    pass
-
-
-MOCK_BACKEND = '.'.join((__name__, MockBackend.__name__))
-
-
-@pytest.fixture
-def app(app):
-    app.config['FS_BACKEND'] = MOCK_BACKEND
-    yield app
-
-
-@pytest.fixture
-def mock_backend():
-    patcher = mock.patch(MOCK_BACKEND)
-    yield patcher.start()
 
 
 def test_url(app):
