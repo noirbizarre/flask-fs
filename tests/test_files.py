@@ -3,31 +3,31 @@ from __future__ import unicode_literals
 
 from flask_fs import files
 
-from . import TestCase
+
+def test_extension():
+    assert files.extension('foo.txt') == 'txt'
+    assert files.extension('foo') == ''
+    assert files.extension('archive.tar.gz') == 'gz'
+    assert files.extension('audio.m4a') == 'm4a'
 
 
-class TestFiles(TestCase):
-    def test_extension(self):
-        self.assertEqual(files.extension('foo.txt'), 'txt')
-        self.assertEqual(files.extension('foo'), '')
-        self.assertEqual(files.extension('archive.tar.gz'), 'gz')
-        self.assertEqual(files.extension('audio.m4a'), 'm4a')
+def test_lowercase_ext():
+    assert files.lower_extension('foo.txt') == 'foo.txt'
+    assert files.lower_extension('FOO.TXT') == 'FOO.txt'
+    assert files.lower_extension('foo') == 'foo'
+    assert files.lower_extension('FOO') == 'FOO'
+    assert files.lower_extension('archive.tar.gz') == 'archive.tar.gz'
+    assert files.lower_extension('ARCHIVE.TAR.GZ') == 'ARCHIVE.TAR.gz'
+    assert files.lower_extension('audio.m4a') == 'audio.m4a'
+    assert files.lower_extension('AUDIO.M4A') == 'AUDIO.m4a'
 
-    def test_lowercase_ext(self):
-        self.assertEqual(files.lower_extension('foo.txt'), 'foo.txt')
-        self.assertEqual(files.lower_extension('FOO.TXT'), 'FOO.txt')
-        self.assertEqual(files.lower_extension('foo'), 'foo')
-        self.assertEqual(files.lower_extension('FOO'), 'FOO')
-        self.assertEqual(files.lower_extension('archive.tar.gz'), 'archive.tar.gz')
-        self.assertEqual(files.lower_extension('ARCHIVE.TAR.GZ'), 'ARCHIVE.TAR.gz')
-        self.assertEqual(files.lower_extension('audio.m4a'), 'audio.m4a')
-        self.assertEqual(files.lower_extension('AUDIO.M4A'), 'AUDIO.m4a')
 
-    def test_ALL(self):
-        self.assertIn('txt', files.ALL)
-        self.assertIn('exe', files.ALL)
+def test_ALL():
+    assert 'txt' in files.ALL
+    assert 'exe' in files.ALL
 
-    def test_all_except(self):
-        all_except = files.AllExcept('exe')
-        self.assertIn('csv', all_except)
-        self.assertNotIn('exe', all_except)
+
+def test_all_except():
+    all_except = files.AllExcept('exe')
+    assert 'csv' in all_except
+    assert 'exe' not in all_except
