@@ -38,6 +38,11 @@ def app():
     yield app
 
 
+@pytest.fixture
+def binfile():
+    return BIN_FILE
+
+
 class Utils(object):
     def __init__(self, faker):
         self.faker = faker

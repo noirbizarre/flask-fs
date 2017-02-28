@@ -11,435 +11,370 @@ from flask_mongoengine import MongoEngine
 
 import pytest
 
-from . import TestCase, BIN_FILE
 
 db = MongoEngine()
 
 
-@pytest.fixture
-def app(app, tmpdir):
-    # self._instance_path = self.app.instance_path
-    app.instance_path = tmpdir
-    storage = app.storage = fs.Storage('test', fs.ALL)
-    fs.init_app(app, storage)
-    db.init_app(app)
-    with app.test_request_context():
-        yield app
-        db_name = app.config['MONGODB_DB']
-        db.connection.drop_database(db_name)
-    # self._ctx.pop()
-    # del self._ctx
+class MongoEngineTestCase(object):
+    @pytest.fixture(autouse=True)
+    def storage(self, app, tmpdir):
+        app.instance_path = str(tmpdir)
+        storage = fs.Storage('test', fs.ALL)
+        fs.init_app(app, storage)
+        db.init_app(app)
+        yield storage
+        with app.test_request_context():
+            db_name = app.config['MONGODB_DB']
+            cli = getattr(db.connection, 'client', db.connection)
+            cli.drop_database(db_name)
 
 
-# class MongoEngineTestCase(TestCase):
-#     def setUp(self):
-#         super(MongoEngineTestCase, self).setUp()
-#         self.app.config['MONGODB_SETTINGS'] = {'DB': 'flask_fs_tests'}
-#         self._instance_path = self.app.instance_path
-#         self.app.instance_path = tempfile.mkdtemp()
-#         self.storage = fs.Storage('test', fs.ALL)
-#         fs.init_app(self.app, self.storage)
-#         db.init_app(self.app)
-#         self._ctx = self.app.test_request_context()
-#         self._ctx.push()
-#
-#     def tearsDown(self):  # noqa
-#         '''Cleanup the mess'''
-#         super(MongoEngineTestCase, self).tearsDown()
-#         shutil.rmtree(self.app.instance_path)
-#         self.app.instance_path = self._instance_path
-#         db_name = self.app.config['MONGODB_SETTINGS']['DB']
-#         db.connection.drop_database(db_name)
-#         self._ctx.pop()
-#         del self._ctx
-
-
-class FileFieldTest(object):
-    def test_default_validate(self, ):
+class FileFieldTest(MongoEngineTestCase):
+    def test_default_validate(self, storage):
         class Tester(db.Document):
-            file = FileField(fs=self.storage)
+            file = FileField(fs=storage)
 
         tester = Tester()
 
-        self.assertIsNone(tester.validate())
+        assert tester.validate() is None
 
-        self.assertFalse(tester.file)
-        self.assertEqual(str(tester.file), '')
-        self.assertEqual(tester.to_mongo(), {})
-        self.assertIsNone(tester.file.filename)
+        assert not tester.file
+        assert str(tester.file) == ''
+        assert tester.to_mongo() == {}
+        assert tester.file.filename is None
 
-    def test_set_filename(self):
+    def test_set_filename(self, storage):
         class Tester(db.Document):
-            file = FileField(fs=self.storage)
+            file = FileField(fs=storage)
 
         filename = 'file.test'
 
         tester = Tester()
         tester.file = filename
 
-        self.assertIsNone(tester.validate())
+        assert tester.validate() is None
 
-        self.assertTrue(tester.file)
-        self.assertEqual(tester.file.filename, filename)
-        self.assertEqual(tester.to_mongo(), {
+        assert tester.file
+        assert tester.file.filename == filename
+        assert tester.to_mongo() == {
             'file': {
                 'filename': filename,
             }
-        })
+        }
 
         tester.save()
         tester.reload()
-        self.assertEqual(tester.file.filename, filename)
+        assert tester.file.filename == filename
 
-    def test_save_from_file(self):
+    def test_save_from_file(self, storage, binfile):
         class Tester(db.Document):
-            file = FileField(fs=self.storage)
+            file = FileField(fs=storage)
 
         filename = 'test.png'
 
         tester = Tester()
-        f = open(BIN_FILE, 'rb')
+        f = open(binfile, 'rb')
         tester.file.save(f, filename)
         tester.validate()
 
-        self.assertTrue(tester.file)
-        self.assertEqual(str(tester.file), tester.file.url)
+        assert tester.file
+        assert str(tester.file) == tester.file.url
 
-        self.assertEqual(tester.file.filename, filename)
+        assert tester.file.filename == filename
 
-        self.assertEqual(tester.to_mongo(), {
+        assert tester.to_mongo() == {
             'file': {
                 'filename': filename,
             }
-        })
+        }
 
-        self.assertIn(filename, self.storage)
+        assert filename in storage
 
-        self.assertTrue(filecmp.cmp(self.storage.path(filename), BIN_FILE))
+        assert filecmp.cmp(storage.path(filename), binfile)
 
         tester.save()
         tester = Tester.objects.get(id=tester.id)
-        self.assertEqual(tester.file.filename, filename)
+        assert tester.file.filename == filename
 
-    def test_save_from_filestorage(self):
+    def test_save_from_filestorage(self, storage, utils):
         class Tester(db.Document):
-            file = FileField(fs=self.storage)
+            file = FileField(fs=storage)
 
         filename = 'test.txt'
 
         tester = Tester()
-        tester.file.save(self.filestorage(filename, 'this is a stest'))
+        tester.file.save(utils.filestorage(filename, 'this is a stest'))
         tester.validate()
 
-        self.assertTrue(tester.file)
-        self.assertEqual(str(tester.file), tester.file.url)
+        assert tester.file
+        assert str(tester.file) == tester.file.url
 
-        self.assertEqual(tester.file.filename, filename)
+        assert tester.file.filename == filename
 
-        self.assertEqual(tester.to_mongo(), {
+        assert tester.to_mongo() == {
             'file': {
                 'filename': filename,
             }
-        })
+        }
 
-        self.assertIn(filename, self.storage)
+        assert filename in storage
 
         tester.save()
         tester = Tester.objects.get(id=tester.id)
-        self.assertEqual(tester.file.filename, filename)
+        assert tester.file.filename == filename
 
-    def test_save_with_upload_to(self):
+    def test_save_with_upload_to(self, storage, utils):
         upload_to = 'prefix'
 
         class Tester(db.Document):
-            file = FileField(fs=self.storage, upload_to=upload_to)
+            file = FileField(fs=storage, upload_to=upload_to)
 
         filename = 'test.txt'
 
         tester = Tester()
-        tester.file.save(self.filestorage(filename, 'this is a stest'))
+        tester.file.save(utils.filestorage(filename, 'this is a stest'))
         tester.validate()
 
         expected_filename = '/'.join([upload_to, filename])
-        self.assertTrue(tester.file)
-        self.assertEqual(tester.file.filename, expected_filename)
-        self.assertIn(expected_filename, self.storage)
-        self.assertEqual(tester.to_mongo(), {
+        assert tester.file
+        assert tester.file.filename == expected_filename
+        assert expected_filename in storage
+        assert tester.to_mongo() == {
             'file': {
                 'filename': expected_filename,
             }
-        })
+        }
 
         tester.save()
         tester = Tester.objects.get(id=tester.id)
-        self.assertEqual(tester.file.filename, expected_filename)
+        assert tester.file.filename == expected_filename
 
-    def test_save_with_callable_upload_to(self):
+    def test_save_with_callable_upload_to(self, storage, utils):
         upload_to = 'prefix'
 
         class Tester(db.Document):
-            file = FileField(fs=self.storage, upload_to=lambda o: upload_to)
+            file = FileField(fs=storage, upload_to=lambda o: upload_to)
 
         filename = 'test.txt'
 
         tester = Tester()
-        tester.file.save(self.filestorage(filename, 'this is a stest'))
+        tester.file.save(utils.filestorage(filename, 'this is a stest'))
         tester.validate()
 
         expected_filename = '/'.join([upload_to, filename])
-        self.assertTrue(tester.file)
-        self.assertEqual(tester.file.filename, expected_filename)
-        self.assertIn(expected_filename, self.storage)
-        self.assertEqual(tester.to_mongo(), {
+        assert tester.file
+        assert tester.file.filename == expected_filename
+        assert expected_filename in storage
+        assert tester.to_mongo() == {
             'file': {
                 'filename': expected_filename,
             }
-        })
+        }
 
         tester.save()
         tester = Tester.objects.get(id=tester.id)
-        self.assertEqual(tester.file.filename, expected_filename)
+        assert tester.file.filename == expected_filename
 
-    def test_save_with_callable_basename(self):
+    def test_save_with_callable_basename(self, storage, utils):
         class Tester(db.Document):
-            file = FileField(fs=self.storage, basename=lambda o: 'prefix/filename')
+            file = FileField(fs=storage, basename=lambda o: 'prefix/filename')
 
         filename = 'test.txt'
 
         tester = Tester()
-        tester.file.save(self.filestorage(filename, 'this is a stest'))
+        tester.file.save(utils.filestorage(filename, 'this is a stest'))
         tester.validate()
 
         expected_filename = 'prefix/filename.txt'
-        self.assertTrue(tester.file)
-        self.assertEqual(tester.file.filename, expected_filename)
-        self.assertIn(expected_filename, self.storage)
-        self.assertEqual(tester.to_mongo(), {
+        assert tester.file
+        assert tester.file.filename == expected_filename
+        assert expected_filename in storage
+        assert tester.to_mongo() == {
             'file': {
                 'filename': expected_filename,
             }
-        })
+        }
 
         tester.save()
         tester = Tester.objects.get(id=tester.id)
-        self.assertEqual(tester.file.filename, expected_filename)
+        assert tester.file.filename == expected_filename
 
-    def test_save_with_callable_basename_override(self):
+    def test_save_with_callable_basename_override(self, storage, utils):
         class Tester(db.Document):
-            file = FileField(fs=self.storage, basename=lambda o: 'prefix/filename')
+            file = FileField(fs=storage, basename=lambda o: 'prefix/filename')
 
         filename = 'test.txt'
         expected_filename = 'other.txt'
 
         tester = Tester()
-        tester.file.save(self.filestorage(filename, 'this is a stest'), expected_filename)
+        tester.file.save(utils.filestorage(filename, 'this is a stest'), expected_filename)
         tester.validate()
 
-        self.assertTrue(tester.file)
-        self.assertEqual(tester.file.filename, expected_filename)
-        self.assertIn(expected_filename, self.storage)
-        self.assertEqual(tester.to_mongo(), {
+        assert tester.file
+        assert tester.file.filename == expected_filename
+        assert expected_filename in storage
+        assert tester.to_mongo() == {
             'file': {
                 'filename': expected_filename,
             }
-        })
+        }
 
         tester.save()
         tester = Tester.objects.get(id=tester.id)
-        self.assertEqual(tester.file.filename, expected_filename)
+        assert tester.file.filename == expected_filename
 
 
 class ImageFieldTest(MongoEngineTestCase):
-    def image(self):
-        return self.app.open_resource('flask.png', 'rb')
+    @pytest.fixture
+    def image(self, binfile):
+        return open(binfile, 'rb')
 
-    def resource(self):
-        return self.filestorage('flask.png', self.image())
+    @pytest.fixture
+    def resource(self, utils, image):
+        return utils.filestorage('flask.png', image)
 
-    def test_default_validate(self):
+    def test_default_validate(self, storage):
         class Tester(db.Document):
-            image = ImageField(fs=self.storage)
+            image = ImageField(fs=storage)
 
         tester = Tester()
-        self.assertIsNone(tester.validate())
+        assert tester.validate() is None
 
-        self.assertFalse(tester.image)
-        self.assertEqual(str(tester.image), '')
-        self.assertEqual(tester.to_mongo(), {})
-        self.assertIsNone(tester.image.filename)
-        self.assertIsNone(tester.image.original)
+        assert not tester.image
+        assert str(tester.image) == ''
+        assert tester.to_mongo() == {}
+        assert tester.image.filename is None
+        assert tester.image.original is None
 
-    def test_save_file(self):
+    def test_save_file(self, storage, image):
         class Tester(db.Document):
-            image = ImageField(fs=self.storage)
+            image = ImageField(fs=storage)
 
         filename = 'test.png'
 
         tester = Tester()
-        tester.image.save(self.image(), filename)
+        tester.image.save(image, filename)
         tester.validate()
 
-        self.assertTrue(tester.image)
-        self.assertEqual(str(tester.image), tester.image.url)
-        self.assertEqual(tester.image.filename, filename)
-        self.assertEqual(tester.image.original, filename)
-        self.assertIn(filename, self.storage)
-        self.assertEqual(tester.to_mongo(), {
+        assert tester.image
+        assert str(tester.image) == tester.image.url
+        assert tester.image.filename == filename
+        assert tester.image.original == filename
+        assert filename in storage
+        assert tester.to_mongo() == {
             'image': {
                 'filename': filename,
             }
-        })
+        }
 
         tester.save()
         tester = Tester.objects.get(id=tester.id)
-        self.assertEqual(tester.image.filename, filename)
+        assert tester.image.filename == filename
 
-        with open(self.storage.path(filename), 'rb') as f_stored, self.image() as f_original:
+        with open(storage.path(filename), 'rb') as f_stored:
             stored = Image.open(f_stored)
-            original = Image.open(f_original)
-            self.assertEqual(stored.size, original.size)
+            original = Image.open(image)
+            assert stored.size == original.size
 
-    def test_save_filestorage(self):
+    def test_save_filestorage(self, storage, resource, image):
         class Tester(db.Document):
-            image = ImageField(fs=self.storage)
+            image = ImageField(fs=storage)
 
         filename = 'flask.png'
 
         tester = Tester()
-        tester.image.save(self.resource())
+        tester.image.save(resource)
         tester.validate()
 
-        self.assertTrue(tester.image)
-        self.assertEqual(str(tester.image), tester.image.url)
-        self.assertEqual(tester.image.filename, filename)
-        self.assertEqual(tester.image.original, filename)
-        self.assertIn(filename, self.storage)
-        self.assertEqual(tester.to_mongo(), {
+        assert tester.image
+        assert str(tester.image) == tester.image.url
+        assert tester.image.filename == filename
+        assert tester.image.original == filename
+        assert filename in storage
+        assert tester.to_mongo() == {
             'image': {
                 'filename': filename,
             }
-        })
+        }
 
         tester.save()
         tester = Tester.objects.get(id=tester.id)
-        self.assertEqual(tester.image.filename, filename)
+        assert tester.image.filename == filename
 
-        with open(self.storage.path(filename), 'rb') as f_stored, self.image() as f_original:
+        with open(storage.path(filename), 'rb') as f_stored:
             stored = Image.open(f_stored)
-            original = Image.open(f_original)
-            self.assertEqual(stored.size, original.size)
+            original = Image.open(image)
+            assert stored.size == original.size
 
-    def test_save_max_size(self):
+    def test_save_max_size(self, storage, resource, image):
         max_size = 150
 
         class Tester(db.Document):
-            image = ImageField(fs=self.storage, max_size=max_size)
+            image = ImageField(fs=storage, max_size=max_size)
 
         filename = 'flask.png'
         filename_original = 'flask-original.png'
 
         tester = Tester()
-        tester.image.save(self.resource())
+        tester.image.save(resource)
         tester.validate()
 
-        self.assertTrue(tester.image)
-        self.assertEqual(str(tester.image), tester.image.url)
-        self.assertEqual(tester.image.filename, filename)
-        self.assertEqual(tester.image.original, filename_original)
-        self.assertIn(filename, self.storage)
-        self.assertEqual(tester.to_mongo(), {
+        assert tester.image
+        assert str(tester.image) == tester.image.url
+        assert tester.image.filename == filename
+        assert tester.image.original == filename_original
+        assert filename in storage
+        assert tester.to_mongo() == {
             'image': {
                 'filename': filename,
                 'original': filename_original,
             }
-        })
+        }
 
         tester.save()
         tester = Tester.objects.get(id=tester.id)
-        self.assertEqual(tester.image.filename, filename)
-        self.assertEqual(tester.image.original, filename_original)
+        assert tester.image.filename == filename
+        assert tester.image.original == filename_original
 
-        with self.image() as f:
-            with open(self.storage.path(filename_original), 'rb') as f_orig:
-                with open(self.storage.path(filename), 'rb') as f_resized:
-                    source = Image.open(f)
-                    original = Image.open(f_orig)
-                    resized = Image.open(f_resized)
-                    self.assertEqual(original.size, source.size)
-                    self.assertLessEqual(resized.size[0], max_size)
-                    self.assertLessEqual(resized.size[1], max_size)
-                    self.assertAlmostEqual(resized.size[0] / resized.size[1],
-                                           source.size[0] / source.size[1], 1)
+        with open(storage.path(filename_original), 'rb') as f_orig:
+            with open(storage.path(filename), 'rb') as f_resized:
+                source = Image.open(image)
+                original = Image.open(f_orig)
+                resized = Image.open(f_resized)
+                assert original.size == source.size
+                assert resized.size[0] <= max_size
+                assert resized.size[1] <= max_size
+                resized_ratio = resized.size[0] / resized.size[1]
+                source_ratio = source.size[0] / source.size[1]
+                assert resized_ratio == pytest.approx(source_ratio, 1)
 
-    def test_save_optimized(self):
-        max_size = 150
-
-        class Tester(db.Document):
-            image = ImageField(fs=self.storage, max_size=max_size)
-
-        filename = 'flask.png'
-        filename_original = 'flask-original.png'
-
-        tester = Tester()
-        tester.image.save(self.resource())
-        tester.validate()
-
-        self.assertTrue(tester.image)
-        self.assertEqual(str(tester.image), tester.image.url)
-        self.assertEqual(tester.image.filename, filename)
-        self.assertEqual(tester.image.original, filename_original)
-        self.assertIn(filename, self.storage)
-        self.assertEqual(tester.to_mongo(), {
-            'image': {
-                'filename': filename,
-                'original': filename_original,
-            }
-        })
-
-        tester.save()
-        tester = Tester.objects.get(id=tester.id)
-        self.assertEqual(tester.image.filename, filename)
-        self.assertEqual(tester.image.original, filename_original)
-
-        with self.image() as f:
-            with open(self.storage.path(filename_original), 'rb') as f_orig:
-                with open(self.storage.path(filename), 'rb') as f_resized:
-                    source = Image.open(f)
-                    original = Image.open(f_orig)
-                    resized = Image.open(f_resized)
-                    self.assertEqual(original.size, source.size)
-                    self.assertLessEqual(resized.size[0], max_size)
-                    self.assertLessEqual(resized.size[1], max_size)
-                    self.assertAlmostEqual(resized.size[0] / resized.size[1],
-                                           source.size[0] / source.size[1], 1)
-
-    def test_save_thumbnails(self):
+    def test_save_thumbnails(self, storage, image, resource):
         sizes = [150, 32]
 
         class Tester(db.Document):
-            image = ImageField(fs=self.storage, thumbnails=sizes)
+            image = ImageField(fs=storage, thumbnails=sizes)
 
         filename = 'flask.png'
         filename_150 = 'flask-150.png'
         filename_32 = 'flask-32.png'
 
         tester = Tester()
-        tester.image.save(self.resource())
+        tester.image.save(resource)
         tester.validate()
 
-        self.assertTrue(tester.image)
-        self.assertEqual(str(tester.image), tester.image.url)
-        self.assertEqual(tester.image.filename, filename)
-        self.assertEqual(tester.image.original, filename)
-        self.assertEqual(tester.image.thumbnail(32), filename_32)
-        self.assertEqual(tester.image.thumbnail(150), filename_150)
-        with self.assertRaises(ValueError):
+        assert tester.image
+        assert str(tester.image) == tester.image.url
+        assert tester.image.filename == filename
+        assert tester.image.original == filename
+        assert tester.image.thumbnail(32) == filename_32
+        assert tester.image.thumbnail(150) == filename_150
+        with pytest.raises(ValueError):
             tester.image.thumbnail(200)
 
-        self.assertIn(filename, self.storage)
-        self.assertIn(filename_32, self.storage)
-        self.assertIn(filename_150, self.storage)
-        self.assertEqual(tester.to_mongo(), {
+        assert filename in storage
+        assert filename_32 in storage
+        assert filename_150 in storage
+        assert tester.to_mongo() == {
             'image': {
                 'filename': filename,
                 'thumbnails': {
@@ -447,28 +382,27 @@ class ImageFieldTest(MongoEngineTestCase):
                     '150': filename_150,
                 },
             }
-        })
+        }
 
         tester.save()
         tester = Tester.objects.get(id=tester.id)
-        self.assertEqual(tester.image.filename, filename)
-        self.assertEqual(tester.image.original, filename)
-        self.assertEqual(tester.image.thumbnail(32), filename_32)
-        self.assertEqual(tester.image.thumbnail(150), filename_150)
+        assert tester.image.filename == filename
+        assert tester.image.original == filename
+        assert tester.image.thumbnail(32) == filename_32
+        assert tester.image.thumbnail(150) == filename_150
 
-        with self.image() as f:
-            with open(self.storage.path(filename), 'rb') as f_orig:
-                with open(self.storage.path(filename_32), 'rb') as f_32:
-                    with open(self.storage.path(filename_150), 'rb') as f_150:
-                        source = Image.open(f)
-                        original = Image.open(f_orig)
-                        thumb_32 = Image.open(f_32)
-                        thumb_150 = Image.open(f_150)
-                        self.assertEqual(original.size, source.size)
-                        self.assertLessEqual(thumb_32.size, (32, 32))
-                        self.assertLessEqual(thumb_150.size, (150, 150))
+        with open(storage.path(filename), 'rb') as f_orig:
+            with open(storage.path(filename_32), 'rb') as f_32:
+                with open(storage.path(filename_150), 'rb') as f_150:
+                    source = Image.open(image)
+                    original = Image.open(f_orig)
+                    thumb_32 = Image.open(f_32)
+                    thumb_150 = Image.open(f_150)
+                    assert original.size == source.size
+                    assert thumb_32.size <= (32, 32)
+                    assert thumb_150.size <= (150, 150)
 
-    def test_save_thumbnails_with_bbox(self):
+    def test_save_thumbnails_with_bbox(self, storage, resource, image):
         sizes = [150, 32]
         bbox = (10, 10, 100, 100)
 
@@ -477,26 +411,27 @@ class ImageFieldTest(MongoEngineTestCase):
         filename_32 = 'flask-32.png'
 
         class Tester(db.Document):
-            image = ImageField(fs=self.storage, thumbnails=sizes)
+            image = ImageField(fs=storage, thumbnails=sizes)
 
         tester = Tester()
-        tester.image.save(self.resource(), bbox=bbox)
+        tester.image.save(resource, bbox=bbox)
         tester.validate()
 
-        self.assertTrue(tester.image)
-        self.assertEqual(str(tester.image), tester.image.url)
-        self.assertEqual(tester.image.filename, filename)
-        self.assertEqual(tester.image.original, filename)
-        self.assertEqual(tester.image.thumbnail(32), filename_32)
-        self.assertEqual(tester.image.thumbnail(150), filename_150)
-        self.assertSequenceEqual(tester.image.bbox, bbox)
-        with self.assertRaises(ValueError):
+        assert tester.image
+        assert str(tester.image) == tester.image.url
+        assert tester.image.filename == filename
+        assert tester.image.original == filename
+        assert tester.image.thumbnail(32) == filename_32
+        assert tester.image.thumbnail(150) == filename_150
+        # self.assertSequenceEqual(tester.image.bbox, bbox)
+        assert tester.image.bbox == bbox
+        with pytest.raises(ValueError):
             tester.image.thumbnail(200)
 
-        self.assertIn(filename, self.storage)
-        self.assertIn(filename_32, self.storage)
-        self.assertIn(filename_150, self.storage)
-        self.assertEqual(tester.to_mongo(), {
+        assert filename in storage
+        assert filename_32 in storage
+        assert filename_150 in storage
+        assert tester.to_mongo() == {
             'image': {
                 'filename': filename,
                 'bbox': (10, 10, 100, 100),
@@ -505,29 +440,30 @@ class ImageFieldTest(MongoEngineTestCase):
                     '150': filename_150,
                 },
             }
-        })
+        }
 
         tester.save()
         tester = Tester.objects.get(id=tester.id)
-        self.assertEqual(tester.image.filename, filename)
-        self.assertEqual(tester.image.original, filename)
-        self.assertEqual(tester.image.thumbnail(32), filename_32)
-        self.assertEqual(tester.image.thumbnail(150), filename_150)
-        self.assertSequenceEqual(tester.image.bbox, bbox)
+        assert tester.image.filename == filename
+        assert tester.image.original == filename
+        assert tester.image.thumbnail(32) == filename_32
+        assert tester.image.thumbnail(150) == filename_150
+        assert tuple(tester.image.bbox) == tuple(bbox)
+        # self.assertSequenceEqual(tester.image.bbox, bbox)
 
-        with self.image() as f:
-            with open(self.storage.path(filename), 'rb') as f_orig:
-                with open(self.storage.path(filename_32), 'rb') as f_32:
-                    with open(self.storage.path(filename_150), 'rb') as f_150:
-                        source = Image.open(f)
-                        original = Image.open(f_orig)
-                        thumb_32 = Image.open(f_32)
-                        thumb_150 = Image.open(f_150)
-                        self.assertEqual(original.size, source.size)
-                        self.assertLessEqual(thumb_32.size, (32, 32))
-                        self.assertLessEqual(thumb_150.size, (150, 150))
+        # with image as f:
+        with open(storage.path(filename), 'rb') as f_orig:
+            with open(storage.path(filename_32), 'rb') as f_32:
+                with open(storage.path(filename_150), 'rb') as f_150:
+                    source = Image.open(image)
+                    original = Image.open(f_orig)
+                    thumb_32 = Image.open(f_32)
+                    thumb_150 = Image.open(f_150)
+                    assert original.size == source.size
+                    assert thumb_32.size <= (32, 32)
+                    assert thumb_150.size <= (150, 150)
 
-    def test_save_wih_two_fields(self):
+    def test_save_wih_two_fields(self, storage, resource):
         sizes = [32]
         bbox = (10, 10, 100, 100)
 
@@ -537,29 +473,29 @@ class ImageFieldTest(MongoEngineTestCase):
         filename2 = 'flask2.png'
 
         class Tester(db.Document):
-            image = ImageField(fs=self.storage, thumbnails=sizes)
-            image2 = ImageField(fs=self.storage)
+            image = ImageField(fs=storage, thumbnails=sizes)
+            image2 = ImageField(fs=storage)
 
         tester = Tester()
-        tester.image.save(self.resource(), bbox=bbox)
-        tester.image2.save(self.resource(), filename='flask2.png')
+        tester.image.save(resource, bbox=bbox)
+        tester.image2.save(resource, filename='flask2.png')
         tester.validate()
 
-        self.assertTrue(tester.image)
-        self.assertEqual(str(tester.image), tester.image.url)
-        self.assertEqual(tester.image.filename, filename)
-        self.assertEqual(tester.image.thumbnail(32), filename_32)
-        self.assertSequenceEqual(tester.image.bbox, bbox)
+        assert tester.image
+        assert str(tester.image) == tester.image.url
+        assert tester.image.filename == filename
+        assert tester.image.thumbnail(32) == filename_32
+        assert tuple(tester.image.bbox) == tuple(bbox)
 
-        self.assertTrue(tester.image2)
-        self.assertEqual(str(tester.image2), tester.image2.url)
-        self.assertEqual(tester.image2.filename, filename2)
-        self.assertIsNone(tester.image2.bbox)
+        assert tester.image2
+        assert str(tester.image2) == tester.image2.url
+        assert tester.image2.filename == filename2
+        assert tester.image2.bbox is None
 
-        self.assertIn(filename, self.storage)
-        self.assertIn(filename_32, self.storage)
-        self.assertIn(filename2, self.storage)
-        self.assertEqual(tester.to_mongo(), {
+        assert filename in storage
+        assert filename_32 in storage
+        assert filename2 in storage
+        assert tester.to_mongo() == {
             'image': {
                 'filename': filename,
                 'bbox': (10, 10, 100, 100),
@@ -570,9 +506,9 @@ class ImageFieldTest(MongoEngineTestCase):
             'image2': {
                 'filename': filename2,
             }
-        })
+        }
 
-    def test_save_and_update(self):
+    def test_save_and_update(self, storage, resource):
         sizes = [150, 32]
         bbox = (10, 10, 100, 100)
 
@@ -581,23 +517,23 @@ class ImageFieldTest(MongoEngineTestCase):
         filename_32 = 'flask-32.png'
 
         class Tester(db.Document):
-            image = ImageField(fs=self.storage, thumbnails=sizes)
+            image = ImageField(fs=storage, thumbnails=sizes)
 
         tester = Tester.objects.create()
 
-        tester.image.save(self.resource(), bbox=bbox)
+        tester.image.save(resource, bbox=bbox)
 
-        self.assertEqual(tester._changed_fields, ['image'])
+        assert tester._changed_fields == ['image']
 
         tester.save()
         tester = Tester.objects.get(id=tester.id)
-        self.assertEqual(tester.image.filename, filename)
-        self.assertEqual(tester.image.original, filename)
-        self.assertEqual(tester.image.thumbnail(32), filename_32)
-        self.assertEqual(tester.image.thumbnail(150), filename_150)
-        self.assertSequenceEqual(tester.image.bbox, bbox)
+        assert tester.image.filename == filename
+        assert tester.image.original == filename
+        assert tester.image.thumbnail(32) == filename_32
+        assert tester.image.thumbnail(150) == filename_150
+        assert tuple(tester.image.bbox) == tuple(bbox)
 
-    def test_best_match(self):
+    def test_best_match(self, storage, resource):
         sizes = [150, 32]
 
         # filename = 'flask.png'
@@ -607,125 +543,125 @@ class ImageFieldTest(MongoEngineTestCase):
         filename2 = 'flask2.png'
 
         class Tester(db.Document):
-            image = ImageField(fs=self.storage, thumbnails=sizes)
-            image2 = ImageField(fs=self.storage)
+            image = ImageField(fs=storage, thumbnails=sizes)
+            image2 = ImageField(fs=storage)
 
         tester = Tester()
 
-        self.assertIsNone(tester.image(150))
-        self.assertIsNone(tester.image.best_url())
+        assert tester.image(150) is None
+        assert tester.image.best_url() is None
 
-        tester.image.save(self.resource())
-        tester.image2.save(self.resource(), filename2)
+        tester.image.save(resource)
+        tester.image2.save(resource, filename2)
 
-        self.assertEqual(tester.image.best_url(150), self.storage.url(filename_150))
-        self.assertEqual(tester.image.best_url(140), self.storage.url(filename_150))
-        self.assertEqual(tester.image.best_url(100), self.storage.url(filename_150))
-        self.assertEqual(tester.image.best_url(32), self.storage.url(filename_32))
-        self.assertEqual(tester.image.best_url(30), self.storage.url(filename_32))
-        self.assertEqual(tester.image.best_url(160), self.storage.url(filename_150))
-        self.assertEqual(tester.image.best_url(), self.storage.url(filename_150))
+        assert tester.image.best_url(150) == storage.url(filename_150)
+        assert tester.image.best_url(140) == storage.url(filename_150)
+        assert tester.image.best_url(100) == storage.url(filename_150)
+        assert tester.image.best_url(32) == storage.url(filename_32)
+        assert tester.image.best_url(30) == storage.url(filename_32)
+        assert tester.image.best_url(160) == storage.url(filename_150)
+        assert tester.image.best_url() == storage.url(filename_150)
 
-        self.assertEqual(tester.image(150), self.storage.url(filename_150))
-        self.assertEqual(tester.image(140), self.storage.url(filename_150))
-        self.assertEqual(tester.image(160), self.storage.url(filename_150))
+        assert tester.image(150) == storage.url(filename_150)
+        assert tester.image(140) == storage.url(filename_150)
+        assert tester.image(160) == storage.url(filename_150)
 
-        self.assertEqual(tester.image2.best_url(150), self.storage.url(filename2))
-        self.assertEqual(tester.image2.best_url(), self.storage.url(filename2))
+        assert tester.image2.best_url(150) == storage.url(filename2)
+        assert tester.image2.best_url() == storage.url(filename2)
 
-    def test_save_with_upload_to(self):
+    def test_save_with_upload_to(self, storage, resource):
         upload_to = 'prefix'
 
         class Tester(db.Document):
-            image = ImageField(fs=self.storage, upload_to=upload_to)
+            image = ImageField(fs=storage, upload_to=upload_to)
 
         filename = 'flask.png'
 
         tester = Tester()
-        tester.image.save(self.resource())
+        tester.image.save(resource)
         tester.validate()
 
         expected_filename = '/'.join([upload_to, filename])
-        self.assertTrue(tester.image)
-        self.assertEqual(tester.image.filename, expected_filename)
-        self.assertIn(expected_filename, self.storage)
-        self.assertEqual(tester.to_mongo(), {
+        assert tester.image
+        assert tester.image.filename == expected_filename
+        assert expected_filename in storage
+        assert tester.to_mongo() == {
             'image': {
                 'filename': expected_filename,
             }
-        })
+        }
 
         tester.save()
         tester = Tester.objects.get(id=tester.id)
-        self.assertEqual(tester.image.filename, expected_filename)
+        assert tester.image.filename == expected_filename
 
-    def test_save_with_callable_upload_to(self):
+    def test_save_with_callable_upload_to(self, storage, resource):
         upload_to = 'prefix'
 
         class Tester(db.Document):
-            image = ImageField(fs=self.storage, upload_to=lambda o: upload_to)
+            image = ImageField(fs=storage, upload_to=lambda o: upload_to)
 
         filename = 'flask.png'
 
         tester = Tester()
-        tester.image.save(self.resource())
+        tester.image.save(resource)
         tester.validate()
 
         expected_filename = '/'.join([upload_to, filename])
-        self.assertTrue(tester.image)
-        self.assertEqual(tester.image.filename, expected_filename)
-        self.assertIn(expected_filename, self.storage)
-        self.assertEqual(tester.to_mongo(), {
+        assert tester.image
+        assert tester.image.filename == expected_filename
+        assert expected_filename in storage
+        assert tester.to_mongo() == {
             'image': {
                 'filename': expected_filename,
             }
-        })
+        }
 
         tester.save()
         tester = Tester.objects.get(id=tester.id)
-        self.assertEqual(tester.image.filename, expected_filename)
+        assert tester.image.filename == expected_filename
 
-    def test_save_with_callable_basename(self):
+    def test_save_with_callable_basename(self, storage, resource):
         class Tester(db.Document):
-            image = ImageField(fs=self.storage, basename=lambda o: 'prefix/filename')
+            image = ImageField(fs=storage, basename=lambda o: 'prefix/filename')
 
         tester = Tester()
-        tester.image.save(self.resource())
+        tester.image.save(resource)
         tester.validate()
 
         expected_filename = 'prefix/filename.png'
-        self.assertTrue(tester.image)
-        self.assertEqual(tester.image.filename, expected_filename)
-        self.assertIn(expected_filename, self.storage)
-        self.assertEqual(tester.to_mongo(), {
+        assert tester.image
+        assert tester.image.filename == expected_filename
+        assert expected_filename in storage
+        assert tester.to_mongo() == {
             'image': {
                 'filename': expected_filename,
             }
-        })
+        }
 
         tester.save()
         tester = Tester.objects.get(id=tester.id)
-        self.assertEqual(tester.image.filename, expected_filename)
+        assert tester.image.filename == expected_filename
 
-    def test_save_with_callable_basename_override(self):
+    def test_save_with_callable_basename_override(self, storage, resource):
         class Tester(db.Document):
-            image = ImageField(fs=self.storage, basename=lambda o: 'prefix/filename')
+            image = ImageField(fs=storage, basename=lambda o: 'prefix/filename')
 
         expected_filename = 'other.png'
 
         tester = Tester()
-        tester.image.save(self.resource(), expected_filename)
+        tester.image.save(resource, expected_filename)
         tester.validate()
 
-        self.assertTrue(tester.image)
-        self.assertEqual(tester.image.filename, expected_filename)
-        self.assertIn(expected_filename, self.storage)
-        self.assertEqual(tester.to_mongo(), {
+        assert tester.image
+        assert tester.image.filename == expected_filename
+        assert expected_filename in storage
+        assert tester.to_mongo() == {
             'image': {
                 'filename': expected_filename,
             }
-        })
+        }
 
         tester.save()
         tester = Tester.objects.get(id=tester.id)
-        self.assertEqual(tester.image.filename, expected_filename)
+        assert tester.image.filename == expected_filename
