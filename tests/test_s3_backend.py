@@ -3,8 +3,7 @@ from __future__ import unicode_literals
 
 import logging
 
-from . import TestCase
-from .test_backend_mixin import BackendTestMixin
+from .test_backend_mixin import BackendTestCase
 
 from flask_fs.backends.s3 import S3Backend
 from flask_fs.storage import Config
@@ -12,6 +11,8 @@ from flask_fs.storage import Config
 import boto3
 
 from botocore.exceptions import ClientError
+
+import pytest
 
 
 # Hide over verbose boto3 logging
@@ -25,10 +26,9 @@ S3_ACCESS_KEY = 'ABCDEFGHIJKLMNOQRSTU'
 S3_SECRET_KEY = 'abcdefghiklmnoqrstuvwxyz1234567890abcdef'
 
 
-class S3BackendTest(BackendTestMixin, TestCase):
-    def setUp(self):
-        super(S3BackendTest, self).setUp()
-
+class S3BackendTest(BackendTestCase):
+    @pytest.fixture(autouse=True)
+    def setup(self):
         self.session = boto3.session.Session()
         self.config = boto3.session.Config(signature_version='s3v4')
 
@@ -47,8 +47,7 @@ class S3BackendTest(BackendTestMixin, TestCase):
             secret_key=S3_SECRET_KEY
         )
         self.backend = S3Backend('test', self.config)
-
-    def tearDown(self):
+        yield
         for obj in self.bucket.objects.all():
             obj.delete()
         self.bucket.delete()

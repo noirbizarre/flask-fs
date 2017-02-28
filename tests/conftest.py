@@ -44,9 +44,6 @@ def binfile():
 
 
 class Utils(object):
-    def __init__(self, faker):
-        self.faker = faker
-
     def filestorage(self, filename, content):
         return FileStorage(self.file(content), filename)
 
@@ -58,21 +55,10 @@ class Utils(object):
         else:
             return content
 
-    def b(self, content):
-        if isinstance(content, six.string_types):
-            content = six.b(content)
-        return content
-
-    def text(self):
-        return six.text_type(self.faker.sentence())
-
-    def binary(self):
-        return six.binary_type(self.faker.binary())
-
 
 @pytest.fixture
 def utils(faker):
-    return Utils(faker)
+    return Utils()
 
 
 class MockBackend(fs.BaseBackend):
