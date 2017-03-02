@@ -89,17 +89,25 @@ class Storage(object):
 
         For each storage, the configuration is loaded with the following pattern::
 
+            {BACKEND_NAME}_FS_{KEY} then
             {STORAGE_NAME}_FS_{KEY}
 
         If no configuration is set for a given key, global config is taken as default.
         '''
-        prefix = PREFIX.format(self.name.upper())
         config = Config()
 
         # Set default values
         for key, value in DEFAULT_CONFIG.items():
             config.setdefault(key, value)
+            
+        backend_prefix = PREFIX.format(backend.upper())
+        
+        for key, value in app.config.items():
+            if key.startswith(backend_prefix):
+                config[key.replace(backend_prefix, '').lower()] = value
 
+        prefix = PREFIX.format(self.name.upper())
+        
         for key, value in app.config.items():
             if key.startswith(prefix):
                 config[key.replace(prefix, '').lower()] = value
