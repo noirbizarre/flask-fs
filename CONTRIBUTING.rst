@@ -40,7 +40,7 @@ You need to install some dependencies to develop on Flask-FS:
 
 .. code-block:: console
 
-    $ pip install -e .[test,dev]
+    $ pip install -e .[,dev]
 
 An Invoke ``tasks.py`` is provided to simplify the common tasks:
 
@@ -55,22 +55,25 @@ An Invoke ``tasks.py`` is provided to simplify the common tasks:
       dist     Package for distribution
       doc      Build the documentation
       qa       Run a quality report
+      start    Start the middlewares (docker)
+      stop     Stop the middlewares (docker)
       test     Run tests suite
       tox      Run tests against Python versions
 
-To ensure everything is fine before submission, use ``tox``.
-It will run the test suite on all the supported Python version
-and ensure the documentation is generating.
+You can launch invoke without any parameters, it will:
+
+- start ``docker`` middlewares containers (ensure docker and docker-compose are installed)
+- execute tox to run tests on all supported Python version
+- build the documentation
+- execute flake8 quality report
+- build a distributable wheel
+
+Or you can execute any task on demand.
+By exemple, to only run tests in the current Python environment and a quality report:
 
 .. code-block:: console
 
-    $ tox
-
-You also need to ensure your code is compliant with the flask-restplus coding standards:
-
-.. code-block:: console
-
-    $ inv qa
+    $ inv test qa
 
 
 .. _official Flask-FS repository: https://github.com/noirbizarre/flask-fs
