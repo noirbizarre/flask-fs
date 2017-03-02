@@ -45,13 +45,14 @@ def stop(ctx, rm=False):
 @task
 def test(ctx):
     '''Run tests suite'''
-    lrun('nosetests --force-color', pty=True)
+    lrun('pytest', pty=True)
 
 
 @task
-def cover(ctx):
+def cover(ctx, html=False):
     '''Run tests suite with coverage'''
-    lrun('nosetests --force-color --with-coverage --cover-html', pty=True)
+    params = '--cov-report term --cov-report html' if html else ''
+    lrun('pytest --cov flask_fs {0}'.format(params), pty=True)
 
 
 @task

@@ -1,5 +1,6 @@
-pytest
 mock
+pytest
 pytest-faker
+pytest-flask
 flask-mongoengine
 pillow

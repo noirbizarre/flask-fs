@@ -25,8 +25,10 @@ class MongoEngineTestCase(object):
         yield storage
         with app.test_request_context():
             db_name = app.config['MONGODB_DB']
-            cli = getattr(db.connection, 'client', db.connection)
-            cli.drop_database(db_name)
+            try:
+                db.connection.client.drop_database(db_name)
+            except TypeError:
+                db.connection.drop_database(db_name)
 
 
 class FileFieldTest(MongoEngineTestCase):

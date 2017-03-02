@@ -12,12 +12,12 @@ python:
   - pypy3
 
 install:
-  - pip install -e .[test]
-  - pip install coverage coveralls
+  - pip install -e .[test,qa] invoke
+  - pip install coveralls
 before_script:
   - docker-compose up -d
 script:
-  - nosetests --with-coverage
+  - inv cover
 after_success:
   - coveralls --rcfile=coverage.rc
 
