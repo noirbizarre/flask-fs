@@ -89,22 +89,32 @@ class Storage(object):
 
         For each storage, the configuration is loaded with the following pattern::
 
+            {BACKEND_NAME}_FS_{KEY} then
             {STORAGE_NAME}_FS_{KEY}
 
         If no configuration is set for a given key, global config is taken as default.
         '''
-        prefix = PREFIX.format(self.name.upper())
         config = Config()
+
+        prefix = PREFIX.format(self.name.upper())
+        backend = config.get('backend', app.config['FS_BACKEND'])
+        backend_prefix = PREFIX.format(backend.upper())
+
 
         # Set default values
         for key, value in DEFAULT_CONFIG.items():
             config.setdefault(key, value)
 
+        # Set backend level values
+        for key, value in app.config.items():
+            if key.startswith(backend_prefix):
+                config[key.replace(backend_prefix, '').lower()] = value
+
+        # Set storage level values
         for key, value in app.config.items():
             if key.startswith(prefix):
                 config[key.replace(prefix, '').lower()] = value
 
-        backend = config.get('backend', app.config['FS_BACKEND'])
         if backend in BUILTIN_BACKENDS:
             backend_class = import_string(BUILTIN_BACKENDS[backend])
         else:
