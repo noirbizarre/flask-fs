@@ -69,3 +69,13 @@ class TestConfiguration(TestCase):
         )
         with self.app.test_request_context():
             self.assertEqual(files.base_url, 'http://somewhere-else.net/test/')
+
+
+    def test_backend_level_configuration(self):
+        files = Storage('files')
+        self.configure(files,
+            FS_URL='http://somewhere.net/test/',
+            LOCAL_FS_URL='http://somewhere-else.net/local/'
+        )
+        with self.app.test_request_context():
+            self.assertEqual(files.base_url, 'http://somewhere-else.net/local/')
