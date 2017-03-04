@@ -1,8 +1,8 @@
 Changelog
 =========
 
-Current
--------
+0.3.0 (2017-03-05)
+------------------
 
 - Switch to pytest
 - ``ImageField`` optimization/compression.
