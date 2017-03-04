@@ -7,11 +7,12 @@ import six
 
 from os.path import splitext
 
+from flask import current_app
 from mongoengine.fields import BaseField
 from werkzeug.datastructures import FileStorage
 
 from .files import extension
-from .images import make_thumbnail, resize
+from .images import make_thumbnail, resize, optimize
 
 log = logging.getLogger(__name__)
 
@@ -73,12 +74,13 @@ class FileReference(object):
 class ImageReference(FileReference):
     '''Implements the ImageField interface'''
     def __init__(self, original=None, max_size=None, thumbnail_sizes=None, thumbnails=None,
-                 bbox=None, **kwargs):
+                 bbox=None, optimize=None, **kwargs):
         super(ImageReference, self).__init__(**kwargs)
         self._original = original
         self.max_size = max_size
         self.thumbnails = thumbnails or {}
         self.bbox = bbox
+        self.optimize = optimize
         self.thumbnail_sizes = thumbnail_sizes
 
     def to_mongo(self):
@@ -110,6 +112,11 @@ class ImageReference(FileReference):
         ext = extension(filename)
         prefix = self.upload_to(self._instance) if callable(self.upload_to) else self.upload_to
 
+        if self.optimize is not None:
+            should_optimize = self.optimize
+        else:
+            should_optimize = current_app.config['FS_IMAGES_OPTIMIZE']
+
         def name(size=None, new_ext=None):
             if size:
                 return '.'.join(['-'.join([basename, str(size)]), new_ext or ext])
@@ -124,6 +131,11 @@ class ImageReference(FileReference):
                 self.filename = self.fs.save(resized, name(new_ext='png'), prefix=prefix)
             else:
                 self.filename = self.fs.save(file_or_wfs, name(), prefix=prefix)
+        elif should_optimize:
+            optimized = optimize(file_or_wfs)
+            file_or_wfs.seek(0)
+            self.original = self.fs.save(file_or_wfs, name('original'), prefix=prefix)
+            self.filename = self.fs.save(optimized, name(new_ext='png'), prefix=prefix)
         else:
             self.filename = self.fs.save(file_or_wfs, name(), prefix=prefix)
 
@@ -240,12 +252,14 @@ class ImageField(FileField):
     '''
     proxy_class = ImageReference
 
-    def __init__(self, max_size=None, thumbnails=None, *args, **kwargs):
+    def __init__(self, max_size=None, thumbnails=None, optimize=None, *args, **kwargs):
         self.max_size = max_size
         self.thumbnail_sizes = thumbnails
+        self.optimize = optimize
         super(ImageField, self).__init__(*args, **kwargs)
 
     def proxy(self, **kwargs):
         return super(ImageField, self).proxy(max_size=self.max_size,
                                              thumbnail_sizes=self.thumbnail_sizes,
+                                             optimize=self.optimize,
                                              **kwargs)

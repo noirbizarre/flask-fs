@@ -46,6 +46,7 @@ On declaration:
 
  - an optionnal `max_size` attribute allows to limit image size
  - an optionnal `thumbnails` list of thumbnail sizes to be generated
+ - an optionnal `optimize` booleanoverriding the ``FS_IMAGES_OPTIMIZE`` setting by field.
 
 On instance:
 

@@ -37,6 +37,7 @@ def init_app(app, *storages):
     app.config.setdefault('FS_PREFIX', None)
     app.config.setdefault('FS_URL', None)
     app.config.setdefault('FS_BACKEND', 'local')
+    app.config.setdefault('FS_IMAGES_OPTIMIZE', False)
 
     state = app.extensions['fs'] = app.extensions.get('fs', {})
     for storage in storages:

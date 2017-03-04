@@ -46,6 +46,13 @@ FS_BACKEND
 The default backend used for storages.
 Can be one of ``local``, ``s3``, ``gridfs`` or ``swift``
 
+FS_IMAGES_OPTIMIZE
+~~~~~~~~~~~~~~~~~~
+
+**default**: ``False``
+
+Whether or not image should be compressedd/optimized by default.
+
 
 Storages configuration
 ----------------------

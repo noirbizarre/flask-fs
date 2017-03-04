@@ -15,6 +15,7 @@ def test_default_configuration(app):
     assert app.config['FS_ROOT'] == join(app.instance_path, 'fs')
     assert app.config['FS_PREFIX'] is None
     assert app.config['FS_URL'] is None
+    assert app.config['FS_IMAGES_OPTIMIZE'] is False
 
 
 def test_default_debug_configuration(app):
@@ -23,6 +24,7 @@ def test_default_debug_configuration(app):
     assert app.config['FS_ROOT'] == join(app.instance_path, 'fs')
     assert app.config['FS_PREFIX'] is None
     assert app.config['FS_URL'] is None
+    assert app.config['FS_IMAGES_OPTIMIZE'] is False
 
 
 def test_not_configured():

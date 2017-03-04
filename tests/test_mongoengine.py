@@ -2,6 +2,7 @@
 from __future__ import unicode_literals, division
 
 import filecmp
+import os
 
 from PIL import Image
 
@@ -307,6 +308,88 @@ class ImageFieldTest(MongoEngineTestCase):
             stored = Image.open(f_stored)
             original = Image.open(image)
             assert stored.size == original.size
+
+    def test_save_optimize_settings(self, app, storage, resource, image):
+        app.config['FS_IMAGES_OPTIMIZE'] = True
+
+        class Tester(db.Document):
+            image = ImageField(fs=storage)
+
+        filename = 'flask.png'
+        filename_original = 'flask-original.png'
+
+        tester = Tester()
+        tester.image.save(resource)
+        tester.validate()
+
+        assert tester.image
+        assert str(tester.image) == tester.image.url
+        assert tester.image.filename == filename
+        assert tester.image.original == filename_original
+        assert filename in storage
+        assert tester.to_mongo() == {
+            'image': {
+                'filename': filename,
+                'original': filename_original,
+            }
+        }
+
+        tester.save()
+        tester = Tester.objects.get(id=tester.id)
+        assert tester.image.filename == filename
+        assert tester.image.original == filename_original
+
+        path_original = storage.path(filename_original)
+        path_optimized = storage.path(filename)
+
+        with open(path_original, 'rb') as f_orig:
+            with open(path_optimized, 'rb') as f_optimized:
+                source = Image.open(image)
+                original = Image.open(f_orig)
+                optimized = Image.open(f_optimized)
+                assert original.size == source.size
+                assert optimized.size == source.size
+        assert os.stat(path_optimized).st_size < os.stat(path_original).st_size
+
+    def test_save_optimize_attribute(self, app, storage, resource, image):
+        class Tester(db.Document):
+            image = ImageField(fs=storage, optimize=True)
+
+        filename = 'flask.png'
+        filename_original = 'flask-original.png'
+
+        tester = Tester()
+        tester.image.save(resource)
+        tester.validate()
+
+        assert tester.image
+        assert str(tester.image) == tester.image.url
+        assert tester.image.filename == filename
+        assert tester.image.original == filename_original
+        assert filename in storage
+        assert tester.to_mongo() == {
+            'image': {
+                'filename': filename,
+                'original': filename_original,
+            }
+        }
+
+        tester.save()
+        tester = Tester.objects.get(id=tester.id)
+        assert tester.image.filename == filename
+        assert tester.image.original == filename_original
+
+        path_original = storage.path(filename_original)
+        path_optimized = storage.path(filename)
+
+        with open(path_original, 'rb') as f_orig:
+            with open(path_optimized, 'rb') as f_optimized:
+                source = Image.open(image)
+                original = Image.open(f_orig)
+                optimized = Image.open(f_optimized)
+                assert original.size == source.size
+                assert optimized.size == source.size
+        assert os.stat(path_optimized).st_size < os.stat(path_original).st_size
 
     def test_save_max_size(self, storage, resource, image):
         max_size = 150
