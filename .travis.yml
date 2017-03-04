@@ -23,4 +23,5 @@ after_success:
 
 matrix:
   allow_failures:
+    - python: pypy
     - python: pypy3

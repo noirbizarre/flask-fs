@@ -2,5 +2,6 @@ mock
 pytest
 pytest-faker
 pytest-flask
+pytest-sugar
 flask-mongoengine
 pillow
