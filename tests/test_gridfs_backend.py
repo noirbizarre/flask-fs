@@ -52,7 +52,7 @@ class GridFsBackendTest(BackendTestCase):
         filename = 'test.txt'
         self.put_file(filename, faker.sentence())
         self.put_file(filename, faker.sentence())
-        assert self.gfs.find({'filename': filename}).count() ==  2
+        assert self.gfs.find({'filename': filename}).count() == 2
 
         self.backend.delete(filename)
         assert not self.file_exists(filename)

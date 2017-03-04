@@ -64,7 +64,7 @@ def test_custom_url(app):
 def test_custom_f_url(app):
     files = Storage('files')
     app.configure(files,
-        FS_URL='http://somewhere.net/test/',
-        FILES_FS_URL='http://somewhere-else.net/test/'
-    )
+                  FS_URL='http://somewhere.net/test/',
+                  FILES_FS_URL='http://somewhere-else.net/test/'
+                  )
     assert files.base_url == 'http://somewhere-else.net/test/'

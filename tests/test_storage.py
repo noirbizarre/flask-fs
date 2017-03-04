@@ -355,9 +355,9 @@ def test_url_from_config_with_scheme(app):
     https = fs.Storage('https')
 
     app.configure(http, https,
-        HTTP_FS_URL='http://somewhere.com/static',
-        HTTPS_FS_URL='https://somewhere.com/static'
-    )
+                  HTTP_FS_URL='http://somewhere.com/static',
+                  HTTPS_FS_URL='https://somewhere.com/static'
+                  )
 
     assert http.url('test.txt') == 'http://somewhere.com/static/test.txt'
     assert https.url('test.txt') == 'https://somewhere.com/static/test.txt'

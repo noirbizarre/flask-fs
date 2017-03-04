@@ -22,7 +22,7 @@ def test_lowercase_ext():
     assert files.lower_extension('AUDIO.M4A') == 'AUDIO.m4a'
 
 
-def test_ALL():
+def test_all():
     assert 'txt' in files.ALL
     assert 'exe' in files.ALL
 

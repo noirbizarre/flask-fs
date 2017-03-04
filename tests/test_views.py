@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import pytest
-
 from flask import url_for
 
 import flask_fs as fs
@@ -27,7 +25,7 @@ def test_get_file(app, mock_backend):
     file_url = url_for('fs.get_file', fs='test', filename='test.txt')
 
     response = app.test_client().get(file_url)
-    assert response.status_code ==  200
+    assert response.status_code == 200
     assert response.data == 'content'.encode('utf-8')
 
 
