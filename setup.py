@@ -40,6 +40,7 @@ gridfs_require = pip('gridfs.pip')
 all_require = s3_require + swift_require + gridfs_require
 tests_require = pip('test.pip') + all_require
 doc_require = pip('doc.pip')
+qa_require = pip('qa.pip')
 dev_require = tests_require + ['invoke', 'tox', 'sphinx', 'alabaster']
 
 setup(
@@ -62,6 +63,7 @@ setup(
         'gridfs': gridfs_require,
         'all': all_require,
         'test': tests_require,
+        'qa': tests_require,
         'dev': dev_require,
     },
     license='MIT',

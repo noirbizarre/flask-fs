@@ -17,7 +17,7 @@ install:
 before_script:
   - docker-compose up -d
 script:
-  - inv cover
+  - inv cover qa
 after_success:
   - coveralls --rcfile=coverage.rc
 
