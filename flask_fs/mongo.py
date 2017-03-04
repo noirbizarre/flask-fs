@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 import bisect
 import logging
+import six
 
 from os.path import splitext
 
@@ -203,7 +204,7 @@ class FileField(BaseField):
         if not isinstance(value, self.proxy_class):
             if isinstance(value, dict):
                 value = self.proxy(**value)
-            elif isinstance(value, basestring):
+            elif isinstance(value, six.text_type):
                 value = self.proxy(filename=value)
         return value
 
