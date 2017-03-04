@@ -12,7 +12,7 @@ python:
   - pypy3
 
 install:
-  - pip install -e .[test,qa] invoke
+  - pip install -e .[ci]
   - pip install coveralls
 before_script:
   - docker-compose up -d

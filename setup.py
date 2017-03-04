@@ -38,10 +38,11 @@ s3_require = pip('s3.pip')
 swift_require = pip('swift.pip')
 gridfs_require = pip('gridfs.pip')
 all_require = s3_require + swift_require + gridfs_require
-tests_require = pip('test.pip') + all_require
+tests_require = pip('test.pip')
 doc_require = pip('doc.pip')
 qa_require = pip('qa.pip')
-dev_require = tests_require + ['invoke', 'tox', 'sphinx', 'alabaster']
+ci_require = pip('ci.pip')
+dev_require = pip('develop.pip')
 
 setup(
     name='flask-fs',
@@ -64,6 +65,7 @@ setup(
         'all': all_require,
         'test': tests_require,
         'qa': tests_require,
+        'ci': ci_require,
         'dev': dev_require,
     },
     license='MIT',
