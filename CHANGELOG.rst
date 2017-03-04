@@ -4,7 +4,7 @@ Changelog
 Current
 -------
 
-- Nothing yet
+- Switch to pytest
 
 0.2.1 (2017-01-17)
 ------------------
