@@ -40,7 +40,7 @@ You need to install some dependencies to develop on Flask-FS:
 
 .. code-block:: console
 
-    $ pip install -e .[,dev]
+    $ pip install -e .[dev]
 
 An Invoke ``tasks.py`` is provided to simplify the common tasks:
 
