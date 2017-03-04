@@ -96,7 +96,7 @@ class ImageReference(FileReference):
             data['bbox'] = self.bbox
         return data
 
-    def save(self, file_or_wfs, filename=None, bbox=None):
+    def save(self, file_or_wfs, filename=None, bbox=None, overwrite=None):
         '''Save a Werkzeug FileStorage object'''
         self._mark_as_changed()
         override = filename is not None
@@ -111,6 +111,7 @@ class ImageReference(FileReference):
 
         ext = extension(filename)
         prefix = self.upload_to(self._instance) if callable(self.upload_to) else self.upload_to
+        kwargs = {'prefix': prefix, 'overwrite': overwrite}
 
         if self.optimize is not None:
             should_optimize = self.optimize
@@ -127,17 +128,17 @@ class ImageReference(FileReference):
             resized = resize(file_or_wfs, self.max_size)
             file_or_wfs.seek(0)
             if resized:
-                self.original = self.fs.save(file_or_wfs, name('original'), prefix=prefix)
-                self.filename = self.fs.save(resized, name(new_ext='png'), prefix=prefix)
+                self.original = self.fs.save(file_or_wfs, name('original'), **kwargs)
+                self.filename = self.fs.save(resized, name(new_ext='png'), **kwargs)
             else:
-                self.filename = self.fs.save(file_or_wfs, name(), prefix=prefix)
+                self.filename = self.fs.save(file_or_wfs, name(), **kwargs)
         elif should_optimize:
             optimized = optimize(file_or_wfs)
             file_or_wfs.seek(0)
-            self.original = self.fs.save(file_or_wfs, name('original'), prefix=prefix)
-            self.filename = self.fs.save(optimized, name(new_ext='png'), prefix=prefix)
+            self.original = self.fs.save(file_or_wfs, name('original'), **kwargs)
+            self.filename = self.fs.save(optimized, name(new_ext='png'), **kwargs)
         else:
-            self.filename = self.fs.save(file_or_wfs, name(), prefix=prefix)
+            self.filename = self.fs.save(file_or_wfs, name(), **kwargs)
 
         if self.thumbnail_sizes:
             self.bbox = bbox
@@ -146,7 +147,7 @@ class ImageReference(FileReference):
                 thumbnail = make_thumbnail(file_or_wfs, size, self.bbox)
                 self.thumbnails[str(size)] = self.fs.save(FileStorage(thumbnail),
                                                           name(size, 'png'),
-                                                          prefix=prefix)
+                                                          **kwargs)
         return self.filename
 
     @property
@@ -185,6 +186,15 @@ class ImageReference(FileReference):
                 best_size = self.thumbnail_sizes[index]
         filename = self.thumbnail(best_size)
         return self.fs.url(filename, external=external) if filename else None
+
+    def rerender(self):
+        '''
+        Rerender all derived images from the original.
+        If optmization settings or expected sizes changed,
+        they will be used for the new rendering.
+        '''
+        with self.fs.open(self.original, 'rb') as img:
+            self.save(img, filename=self.filename, bbox=self.bbox, overwrite=True)
 
     __call__ = best_url
 

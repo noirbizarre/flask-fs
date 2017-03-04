@@ -54,6 +54,7 @@ On instance:
  - the `best_url(size)` method match a thumbnail URL given a size
  - the `thumbnail(size)` method get a thumbnail filename given a registered size
  - the `save` method accept an optionnal `bbox` kwarg for to crop the thumbnails
+ - the `rerender` method allows to force a new image rendering (taking in account new parameters)
  - the instance is callable as shortcut for `best_url()`
 
 .. code-block:: python

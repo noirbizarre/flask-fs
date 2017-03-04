@@ -750,3 +750,48 @@ class ImageFieldTest(MongoEngineTestCase):
         tester.save()
         tester = Tester.objects.get(id=tester.id)
         assert tester.image.filename == expected_filename
+
+    def test_rerender(self, app, storage, resource, image):
+        class Tester(db.Document):
+            image = ImageField(fs=storage, optimize=True)
+
+        filename = 'flask.png'
+        filename_original = 'flask-original.png'
+
+        storage.write(filename, image)
+
+        tester = Tester()
+        tester.image.filename = filename
+        assert tester.to_mongo() == {
+            'image': {
+                'filename': filename,
+            }
+        }
+
+        tester.image.rerender()
+        tester.save().reload()
+
+        assert tester.image
+        assert str(tester.image) == tester.image.url
+        assert tester.image.filename == filename
+        assert tester.image.original == filename_original
+        assert filename in storage
+        assert tester.to_mongo() == {
+            '_id': tester.pk,
+            'image': {
+                'filename': filename,
+                'original': filename_original,
+            }
+        }
+
+        path_original = storage.path(filename_original)
+        path_optimized = storage.path(filename)
+
+        with open(path_original, 'rb') as f_orig:
+            with open(path_optimized, 'rb') as f_optimized:
+                source = Image.open(image)
+                original = Image.open(f_orig)
+                optimized = Image.open(f_optimized)
+                assert original.size == source.size
+                assert optimized.size == source.size
+        assert os.stat(path_optimized).st_size < os.stat(path_original).st_size

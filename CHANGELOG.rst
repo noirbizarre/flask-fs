@@ -9,6 +9,7 @@ Current
   Resized images are now compressed.
   Default image can also be optimized on upload with ``FS_IMAGES_OPTIMIZE = True``
   or by specifying `optimize=True` as field parameter.
+- ``ImageField`` has now the ability to rerender images with the ``rerender()`` method.
 
 0.2.1 (2017-01-17)
 ------------------
