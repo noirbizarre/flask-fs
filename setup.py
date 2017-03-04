@@ -12,28 +12,6 @@ ROOT = dirname(__file__)
 
 RE_REQUIREMENT = re.compile(r'^\s*-r\s*(?P<filename>.*)$')
 
-PYPI_RST_FILTERS = (
-    # Replace code-blocks
-    (r'\.\.\s? code-block::\s*(\w|\+)+', '::'),
-    # Remove all badges
-    (r'\.\. image:: .*', ''),
-    (r'    :target: .*', ''),
-    (r'    :alt: .*', ''),
-)
-
-
-def rst(filename):
-    '''
-    Load rst file and sanitize it for PyPI.
-    Remove unsupported github tags:
-     - code-block directive
-     - all badges
-    '''
-    content = open(filename).read()
-    for regex, replacement in PYPI_RST_FILTERS:
-        content = re.sub(regex, replacement, content)
-    return content
-
 
 def pip(filename):
     """Parse pip reqs file and transform it to setuptools requirements."""
@@ -51,8 +29,8 @@ def pip(filename):
 
 
 long_description = '\n'.join((
-    rst('README.rst'),
-    rst('CHANGELOG.rst'),
+    open('README.rst').read(),
+    open('CHANGELOG.rst').read(),
     ''
 ))
 
