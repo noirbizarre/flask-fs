@@ -42,7 +42,7 @@ class LocalBackendTest(BackendTestCase):
         assert backend.root == root
 
     def test_backend_root(self, app):
-        app.config['LOCAL_FS_ROOT'] = str(self.test_dir)
+        app.config['FS_LOCAL_ROOT'] = str(self.test_dir)
         root = self.test_dir.join('default')
         backend = LocalBackend('default', Config({}))
         assert backend.root == root

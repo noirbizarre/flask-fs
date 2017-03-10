@@ -28,7 +28,7 @@ PREFIX = '{0}_FS_'
 BACKEND_PREFIX = 'FS_{0}_'
 
 # Config keys that should be overwritten from backend config
-BACKEND_EXCLUDED_CONFIG = ('BACKEND', 'URL')
+BACKEND_EXCLUDED_CONFIG = ('BACKEND', 'URL', 'ROOT')
 
 
 class Config(dict):
