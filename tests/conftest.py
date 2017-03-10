@@ -4,12 +4,9 @@ from __future__ import unicode_literals
 import io
 import os
 import six
-import mock
 
 from flask import Flask
 from werkzeug.datastructures import FileStorage
-
-import flask_fs as fs
 
 import pytest
 
@@ -61,15 +58,8 @@ def utils(faker):
     return Utils()
 
 
-class MockBackend(fs.BaseBackend):
-    pass
-
-
-MOCK_BACKEND = '.'.join((__name__, MockBackend.__name__))
-
-
 @pytest.fixture
-def mock_backend(app):
-    app.config['FS_BACKEND'] = MOCK_BACKEND
-    patcher = mock.patch(MOCK_BACKEND)
-    yield patcher.start()
+def mock_backend(app, mocker):
+    app.config['FS_BACKEND'] = 'mock'
+    mock = mocker.patch('flask_fs.backends.mock.MockBackend')
+    yield mock

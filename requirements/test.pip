@@ -1,10 +1,10 @@
 -r s3.pip
 -r gridfs.pip
 -r swift.pip
-mock
 pytest
 pytest-faker
 pytest-flask
 pytest-sugar
+pytest-mock
 flask-mongoengine
 pillow

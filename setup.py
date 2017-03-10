@@ -68,6 +68,15 @@ setup(
         'ci': ci_require,
         'dev': dev_require,
     },
+    entry_points={
+        'fs.backend': [
+            'local = flask_fs.backends.local:LocalBackend',
+            's3 = flask_fs.backends.s3:S3Backend [s3]',
+            'gridfs = flask_fs.backends.gridfs:GridFsBackend [gridfs]',
+            'swift = flask_fs.backends.swift:SwiftBackend [swift]',
+            'mock = flask_fs.backends.mock:MockBackend',
+        ]
+    },
     license='MIT',
     use_2to3=True,
     zip_safe=False,

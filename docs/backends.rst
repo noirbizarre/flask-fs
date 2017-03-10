@@ -52,6 +52,16 @@ Custom backends
 Flask-FS allows you to defined your own backend
 by extending the :class:`~flask_fs.backends.BaseBackend` class.
 
+You need to register your backend using setuptools entrypoints in your ``setup.py``:
+
+.. code-block:: python
+
+    entry_points={
+        'fs.backend': [
+            'custom = my.custom.package:CustomBackend',
+        ]
+    },
+
 
 Sample configuration
 --------------------

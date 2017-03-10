@@ -1,19 +1,13 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import pkg_resources
 import os.path
 
-try:
-    from urllib.parse import urljoin
-except:
-    from urlparse import urljoin
-
 from flask import current_app, url_for, request, abort
+from six.moves.urllib.parse import urljoin
 from werkzeug import secure_filename, FileStorage, cached_property
-from werkzeug.utils import import_string
 
-
-from .backends import BUILTIN_BACKENDS
 from .errors import UnauthorizedFileType, FileExists, OperationNotSupported, FileNotFound
 from .files import DEFAULTS, extension, lower_extension
 
@@ -29,6 +23,9 @@ BACKEND_PREFIX = 'FS_{0}_'
 
 # Config keys that should be overwritten from backend config
 BACKEND_EXCLUDED_CONFIG = ('BACKEND', 'URL', 'ROOT')
+
+# Load registered backends
+BACKENDS = dict((ep.name, ep) for ep in pkg_resources.iter_entry_points('fs.backend'))
 
 
 class Config(dict):
@@ -120,10 +117,10 @@ class Storage(object):
             if key.startswith(prefix):
                 config[key.replace(prefix, '').lower()] = value
 
-        if self.backend_name in BUILTIN_BACKENDS:
-            backend_class = import_string(BUILTIN_BACKENDS[self.backend_name])
-        else:
-            backend_class = import_string(self.backend_name)
+        if self.backend_name not in BACKENDS:
+            raise ValueError('Unknown backend "{0}"'.format(self.backend_name))
+        backend_class = BACKENDS[self.backend_name].load()
+        backend_class.backend_name = self.backend_name
         self.backend = backend_class(self.name, config)
         self.config = config
 

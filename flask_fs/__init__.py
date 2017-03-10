@@ -8,7 +8,7 @@ from .__about__ import __version__, __description__  # noqa: Facade pattern
 try:
     from flask import current_app
 
-    from .backends import BaseBackend, DEFAULT_BACKEND, BUILTIN_BACKENDS  # noqa: Facade pattern
+    from .backends import BaseBackend, DEFAULT_BACKEND  # noqa: Facade pattern
     from .errors import *  # noqa: Facade pattern
     from .files import *  # noqa: Facade pattern
     from .storage import Storage  # noqa: Facade pattern
@@ -36,7 +36,7 @@ def init_app(app, *storages):
     app.config.setdefault('FS_ROOT', join(app.instance_path, 'fs'))
     app.config.setdefault('FS_PREFIX', None)
     app.config.setdefault('FS_URL', None)
-    app.config.setdefault('FS_BACKEND', 'local')
+    app.config.setdefault('FS_BACKEND', DEFAULT_BACKEND)
     app.config.setdefault('FS_IMAGES_OPTIMIZE', False)
 
     state = app.extensions['fs'] = app.extensions.get('fs', {})

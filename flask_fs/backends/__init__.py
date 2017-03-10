@@ -3,15 +3,8 @@ from __future__ import unicode_literals
 
 import six
 
-__all__ = [i.encode('ascii') for i in ('BaseBackend', 'DEFAULT_BACKEND', 'BUILTIN_BACKENDS')]
+__all__ = [i.encode('ascii') for i in ('BaseBackend', 'DEFAULT_BACKEND')]
 
-
-BUILTIN_BACKENDS = {
-    'local': 'flask_fs.backends.local.LocalBackend',
-    's3': 'flask_fs.backends.s3.S3Backend',
-    'swift': 'flask_fs.backends.swift.SwiftBackend',
-    'grids': 'flask_fs.backends.gridfs.GridFsBackend',
-}
 
 DEFAULT_BACKEND = 'local'
 
