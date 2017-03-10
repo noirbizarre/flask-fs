@@ -25,6 +25,10 @@ DEFAULT_CONFIG = {
 
 CONF_PREFIX = 'FS_'
 PREFIX = '{0}_FS_'
+BACKEND_PREFIX = 'FS_{0}_'
+
+# Config keys that should be overwritten from backend config
+BACKEND_EXCLUDED_CONFIG = ('BACKEND', 'URL')
 
 
 class Config(dict):
@@ -89,7 +93,7 @@ class Storage(object):
 
         For each storage, the configuration is loaded with the following pattern::
 
-            {BACKEND_NAME}_FS_{KEY} then
+            FS_{BACKEND_NAME}_{KEY} then
             {STORAGE_NAME}_FS_{KEY}
 
         If no configuration is set for a given key, global config is taken as default.
@@ -97,9 +101,10 @@ class Storage(object):
         config = Config()
 
         prefix = PREFIX.format(self.name.upper())
-        backend = config.get('backend', app.config['FS_BACKEND'])
-        backend_prefix = PREFIX.format(backend.upper())
-
+        backend_key = '{0}BACKEND'.format(prefix)
+        self.backend_name = app.config.get(backend_key, app.config['FS_BACKEND'])
+        self.backend_prefix = BACKEND_PREFIX.format(self.backend_name.upper())
+        backend_excluded_keys = [''.join((self.backend_prefix, k)) for k in BACKEND_EXCLUDED_CONFIG]
 
         # Set default values
         for key, value in DEFAULT_CONFIG.items():
@@ -107,18 +112,18 @@ class Storage(object):
 
         # Set backend level values
         for key, value in app.config.items():
-            if key.startswith(backend_prefix):
-                config[key.replace(backend_prefix, '').lower()] = value
+            if key.startswith(self.backend_prefix) and key not in backend_excluded_keys:
+                config[key.replace(self.backend_prefix, '').lower()] = value
 
         # Set storage level values
         for key, value in app.config.items():
             if key.startswith(prefix):
                 config[key.replace(prefix, '').lower()] = value
 
-        if backend in BUILTIN_BACKENDS:
-            backend_class = import_string(BUILTIN_BACKENDS[backend])
+        if self.backend_name in BUILTIN_BACKENDS:
+            backend_class = import_string(BUILTIN_BACKENDS[self.backend_name])
         else:
-            backend_class = import_string(backend)
+            backend_class = import_string(self.backend_name)
         self.backend = backend_class(self.name, config)
         self.config = config
 
@@ -133,6 +138,7 @@ class Storage(object):
         if config_value:
             return self._clean_url(config_value)
         default_url = current_app.config.get('FS_URL')
+        default_url = current_app.config.get('{0}URL'.format(self.backend_prefix), default_url)
         if default_url:
             url = urljoin(default_url, self.name)
             return self._clean_url(url)

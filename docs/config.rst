@@ -60,7 +60,7 @@ Storages configuration
 Each storage configuration can be overriden from the application configuration.
 The configuration is loaded in the following order:
 
-- ``{BACKEND_NAME}_FS_{KEY}`` (backend specific configuration)
+- ``FS_{BACKEND_NAME}_{KEY}`` (backend specific configuration)
 - ``{STORAGE_NAME}_FS_{KEY}`` (specific configuration)
 - ``FS_{KEY}`` (global configuration)
 - default value
@@ -78,3 +78,10 @@ You can override its root with the following configuration:
 .. code-block:: python
 
     AVATARS_FS_ROOT = '/somewhere/on/the/filesystem'
+
+Or you can set a base URL to all storages for a given backend:
+
+.. code-block:: python
+
+    FS_S3_URL = 'https://s3.somewhere.com/'
+    FS_S3_REGION = 'us-east-1'

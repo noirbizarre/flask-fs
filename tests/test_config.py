@@ -76,6 +76,33 @@ def test_backend_level_configuration(app):
     files = Storage('files')
     app.configure(files,
                   FS_URL='http://somewhere.net/test/',
-                  LOCAL_FS_URL='http://somewhere-else.net/local/'
+                  FS_LOCAL_URL='http://somewhere-else.net/local/'
                   )
-    assert files.base_url == 'http://somewhere-else.net/local/'
+    assert isinstance(files.backend, LocalBackend)
+    assert files.base_url == 'http://somewhere-else.net/local/files/'
+
+
+def test_configuration_cascading(app):
+    files = Storage('files')
+    avatars = Storage('avatars')
+    images = Storage('images')
+    app.configure(files, avatars, images,
+                  FS_BACKEND='s3',
+                  FS_S3_ENDPOINT='http://localhost:9000',
+                  FS_S3_REGION='us-east-1',
+                  FS_S3_ACCESS_KEY='ABCDEFGHIJKLMNOQRSTU',
+                  FS_S3_SECRET_KEY='abcdefghiklmnoqrstuvwxyz1234567890abcdef',
+                  FS_URL='http://somewhere.net/test/',
+                  FS_LOCAL_URL='http://somewhere-else.net/local/',
+                  FILES_FS_BACKEND='local',
+                  AVATARS_FS_BACKEND='local',
+                  AVATARS_FS_URL='http://somewhere-else.net/avatars/'
+                  )
+
+    assert files.backend_name == 'local'
+    assert avatars.backend_name == 'local'
+    assert images.backend_name == 's3'
+    assert files.base_url == 'http://somewhere-else.net/local/files/'
+    assert avatars.base_url == 'http://somewhere-else.net/avatars/'
+    assert images.base_url == 'http://somewhere.net/test/images/'
+    assert images.config.endpoint == 'http://localhost:9000'
