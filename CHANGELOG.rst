@@ -4,7 +4,7 @@ Changelog
 Current
 -------
 
-- Nothing yet
+- Added backend level configuration
 
 0.3.0 (2017-03-05)
 ------------------

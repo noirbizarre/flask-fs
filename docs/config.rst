@@ -60,6 +60,7 @@ Storages configuration
 Each storage configuration can be overriden from the application configuration.
 The configuration is loaded in the following order:
 
+- ``{BACKEND_NAME}_FS_{KEY}`` (backend specific configuration)
 - ``{STORAGE_NAME}_FS_{KEY}`` (specific configuration)
 - ``FS_{KEY}`` (global configuration)
 - default value

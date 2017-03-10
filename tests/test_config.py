@@ -8,6 +8,7 @@ from flask import url_for
 from flask_fs import Storage, DEFAULTS
 from flask_fs.backends.local import LocalBackend
 
+
 def test_default_configuration(app):
     app.configure()
     assert not app.config['FS_SERVE']
