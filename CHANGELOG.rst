@@ -5,6 +5,7 @@ Current
 -------
 
 - Added backend level configuration ``FS_{BACKEND_NAME}_{KEY}``
+- Improved backend documentation
 
 0.3.0 (2017-03-05)
 ------------------
