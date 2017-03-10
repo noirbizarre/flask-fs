@@ -8,7 +8,6 @@ from flask import url_for
 from flask_fs import Storage, DEFAULTS
 from flask_fs.backends.local import LocalBackend
 
-
 def test_default_configuration(app):
     app.configure()
     assert not app.config['FS_SERVE']
@@ -70,3 +69,12 @@ def test_custom_f_url(app):
                   FILES_FS_URL='http://somewhere-else.net/test/'
                   )
     assert files.base_url == 'http://somewhere-else.net/test/'
+
+
+def test_backend_level_configuration(app):
+    files = Storage('files')
+    app.configure(files,
+                  FS_URL='http://somewhere.net/test/',
+                  LOCAL_FS_URL='http://somewhere-else.net/local/'
+                  )
+    assert files.base_url == 'http://somewhere-else.net/local/'
