@@ -5,7 +5,7 @@ from os.path import join
 
 from flask import url_for
 
-from flask_fs import Storage, DEFAULTS
+from flask_fs import Storage, DEFAULTS, NONE
 from flask_fs.backends.local import LocalBackend
 
 
@@ -106,3 +106,9 @@ def test_configuration_cascading(app):
     assert avatars.base_url == 'http://somewhere-else.net/avatars/'
     assert images.base_url == 'http://somewhere.net/test/images/'
     assert images.config.endpoint == 'http://localhost:9000'
+
+
+def test_configurable_extensions(app):
+    files = Storage('files', NONE)
+    app.configure(files, FS_ALLOW=['txt'])
+    assert files.extension_allowed('txt')

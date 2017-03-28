@@ -5,7 +5,7 @@ import os.path
 
 __all__ = (
     'TEXT', 'DOCUMENTS', 'IMAGES', 'AUDIO', 'DATA', 'SCRIPTS', 'ARCHIVES', 'EXECUTABLES',
-    'DEFAULTS', 'ALL', 'All', 'AllExcept',
+    'DEFAULTS', 'ALL', 'NONE', 'All', 'AllExcept', 'DisallowAll'
 )
 
 #: This just contains plain text files (.txt).
@@ -76,8 +76,20 @@ class All(object):
         return True
 
 
+class DisallowAll(object):
+    '''
+    This type can be used to disallow all extensions.
+    There is a predefined instance named `NONE`.
+    '''
+    def __contains__(self, item):
+        return False
+
+
 #: This "contains" all items. You can use it to allow all extensions to be uploaded.
 ALL = All()
+
+#: This "contains" no items. You can use it to force a whitelist by configuration.
+NONE = DisallowAll()
 
 
 class AllExcept(object):

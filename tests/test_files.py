@@ -25,6 +25,13 @@ def test_lowercase_ext():
 def test_all():
     assert 'txt' in files.ALL
     assert 'exe' in files.ALL
+    assert 'any' in files.ALL
+
+
+def test_none():
+    assert 'txt' not in files.NONE
+    assert 'exe' not in files.NONE
+    assert 'any' not in files.NONE
 
 
 def test_all_except():
