@@ -35,9 +35,13 @@ class SwiftBackendTest(BackendTestCase):
         yield
 
         try:
+            headers, items = self.conn.get_container(self.backend.name)
+            for i in items:
+                self.conn.delete_object(self.backend.name, i['name'])
+
             self.conn.delete_container(self.backend.name)
         except swiftclient.ClientException as e:
-            print(e)
+            assert False, "Failed to delete container ->" + str(e)
 
     def put_file(self, filename, content):
         self.conn.put_object(self.container, filename, contents=content)

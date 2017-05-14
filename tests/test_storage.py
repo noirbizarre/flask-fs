@@ -409,3 +409,13 @@ def test_path_not_supported(app, mock_backend):
 
     with pytest.raises(fs.OperationNotSupported):
         storage.path('file.test')
+
+
+def test_list_files(app, mock_backend):
+    storage = fs.Storage('test')
+    backend = mock_backend.return_value
+    backend.list_files.return_value = ['one.txt']
+
+    app.configure(storage)
+
+    assert storage.list_files() == ['one.txt']

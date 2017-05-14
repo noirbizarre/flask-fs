@@ -74,6 +74,10 @@ class S3Backend(BaseBackend):
     def delete(self, filename):
         self.bucket.Object(filename).delete()
 
+    def list_files(self):
+        for f in self.bucket.objects.all():
+            yield f.key
+
     # def serve(self, filename):
     #     file = self.fs.get_last_version(filename)
     #     return send_file(file, mimetype=file.content_type)
