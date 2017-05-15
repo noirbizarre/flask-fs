@@ -1,7 +1,7 @@
 -r s3.pip
 -r swift.pip
 -r gridfs.pip
-sphinx
+sphinx==1.4.8
 alabaster
 pillow
 flask-mongoengine
