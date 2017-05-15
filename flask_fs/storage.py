@@ -301,6 +301,12 @@ class Storage(object):
 
         return filename
 
+    def list_files(self):
+        '''
+        Returns a filename generator to iterate through all the file in the storage bucket
+        '''
+        return self.backend.list_files()
+
     def __contains__(self, value):
         return self.exists(value)
 

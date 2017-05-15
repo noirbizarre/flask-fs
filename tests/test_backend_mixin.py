@@ -134,3 +134,10 @@ class BackendTestCase(object):
         self.backend.save(storage, filename)
 
         self.assert_text_equal(filename, content)
+
+    def test_list_files(self, faker, utils):
+        for f in ['first.test', 'second.test']:
+            content = six.text_type(faker.sentence())
+            self.put_file(f, content)
+
+        assert sorted(list(self.backend.list_files())) == ['first.test', 'second.test']

@@ -59,3 +59,8 @@ class SwiftBackend(BaseBackend):
 
     def delete(self, filename):
         self.conn.delete_object(self.name, filename)
+
+    def list_files(self):
+        headers, items = self.conn.get_container(self.name)
+        for i in items:
+            yield i['name']

@@ -75,6 +75,11 @@ class LocalBackend(BaseBackend):
                 copyfileobj(file_or_wfs, out)
         return filename
 
+    def list_files(self):
+        for dirpath, dirnames, filenames in os.walk(self.root):
+            for f in filenames:
+                yield f
+
     def path(self, filename):
         '''Return the full path for a given filename in the storage'''
         return os.path.join(self.root, filename)

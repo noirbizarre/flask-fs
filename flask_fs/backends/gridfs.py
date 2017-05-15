@@ -60,6 +60,10 @@ class GridFsBackend(BaseBackend):
         for version in self.fs.find({'filename': filename}):
             self.fs.delete(version._id)
 
+    def list_files(self):
+        for f in self.fs.list():
+            yield f
+
     def serve(self, filename):
         file = self.fs.get_last_version(filename)
         return send_file(file, mimetype=file.content_type)

@@ -8,6 +8,7 @@ Current
 - Improved backend documentation
 - Use setuptools entry points to register backends.
 - Added `NONE` extensions specification
+- Added `list_files` to `Storage` to list the current bucket files
 
 0.3.0 (2017-03-05)
 ------------------
