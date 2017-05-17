@@ -2,6 +2,6 @@
 -r swift.pip
 -r gridfs.pip
 sphinx
-alabaster
+alabaster==0.7.9
 pillow
 flask-mongoengine
