@@ -3,5 +3,5 @@
 -r gridfs.pip
 sphinx
 alabaster
-pillow
+pillow==3.4.2
 flask-mongoengine

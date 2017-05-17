@@ -7,4 +7,4 @@ pytest-flask
 pytest-sugar
 pytest-mock
 flask-mongoengine
-pillow
+pillow==3.4.2
