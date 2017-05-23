@@ -15,7 +15,7 @@ class BaseBackend(object):
     '''
     root = None
 
-    def __init__(self, name, config):
+    def __init__(self, name, config, **kwargs):
         self.name = name
         self.config = config
 

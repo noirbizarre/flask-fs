@@ -27,7 +27,7 @@ class S3Backend(BaseBackend):
     - `access_key`: The AWS credential access key
     - `secret_key`: The AWS credential secret key
     '''
-    def __init__(self, name, config):
+    def __init__(self, name, config, **kwargs):
         super(S3Backend, self).__init__(name, config)
 
         self.session = boto3.session.Session()
@@ -38,7 +38,7 @@ class S3Backend(BaseBackend):
                                         endpoint_url=config.endpoint,
                                         region_name=config.region,
                                         aws_access_key_id=config.access_key,
-                                        aws_secret_access_key=config.secret_key)
+                                        aws_secret_access_key=config.secret_key, **kwargs)
         self.bucket = self.s3.Bucket(name)
 
         try:

@@ -74,15 +74,22 @@ class Storage(object):
         it should return the default upload destination path for that app.
     :param bool overwrite:
         Whether or not to allow overwriting
+    :param kwargs:
+        backend specific additonal parameters
     '''
 
-    def __init__(self, name='files', extensions=DEFAULTS, upload_to=None, overwrite=False):
+    def __init__(self, name='files',
+                 extensions=DEFAULTS,
+                 upload_to=None,
+                 overwrite=False,
+                 **kwargs):
         self.name = name
         self.extensions = extensions
         self.config = Config()
         self.upload_to = upload_to
         self.backend = None
         self.overwrite = overwrite
+        self.kwargs = kwargs
 
     def configure(self, app):
         '''
@@ -121,7 +128,7 @@ class Storage(object):
             raise ValueError('Unknown backend "{0}"'.format(self.backend_name))
         backend_class = BACKENDS[self.backend_name].load()
         backend_class.backend_name = self.backend_name
-        self.backend = backend_class(self.name, config)
+        self.backend = backend_class(self.name, config, **self.kwargs)
         self.config = config
 
     @cached_property

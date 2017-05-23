@@ -23,13 +23,14 @@ class SwiftBackend(BaseBackend):
     - `user`: The Swift user in
     - `key`: The user API Key
     '''
-    def __init__(self, name, config):
+    def __init__(self, name, config, **kwargs):
         super(SwiftBackend, self).__init__(name, config)
 
         self.conn = swiftclient.Connection(
             user=config.user,
             key=config.key,
-            authurl=config.authurl
+            authurl=config.authurl,
+            **kwargs
         )
         self.conn.put_container(self.name)
 
