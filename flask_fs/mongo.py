@@ -118,25 +118,25 @@ class ImageReference(FileReference):
         else:
             should_optimize = current_app.config['FS_IMAGES_OPTIMIZE']
 
-        def name(size=None, new_ext=None):
+        def name(size=None):
             if size:
-                return '.'.join(['-'.join([basename, str(size)]), new_ext or ext])
+                return '.'.join(['-'.join([basename, str(size)]), ext])
             else:
-                return '.'.join([basename, new_ext or ext])
+                return '.'.join([basename, ext])
 
         if self.max_size:
             resized = resize(file_or_wfs, self.max_size)
             file_or_wfs.seek(0)
             if resized:
                 self.original = self.fs.save(file_or_wfs, name('original'), **kwargs)
-                self.filename = self.fs.save(resized, name(new_ext='png'), **kwargs)
+                self.filename = self.fs.save(resized, name(), **kwargs)
             else:
                 self.filename = self.fs.save(file_or_wfs, name(), **kwargs)
         elif should_optimize:
             optimized = optimize(file_or_wfs)
             file_or_wfs.seek(0)
             self.original = self.fs.save(file_or_wfs, name('original'), **kwargs)
-            self.filename = self.fs.save(optimized, name(new_ext='png'), **kwargs)
+            self.filename = self.fs.save(optimized, name(), **kwargs)
         else:
             self.filename = self.fs.save(file_or_wfs, name(), **kwargs)
 
@@ -146,7 +146,7 @@ class ImageReference(FileReference):
                 file_or_wfs.seek(0)
                 thumbnail = make_thumbnail(file_or_wfs, size, self.bbox)
                 self.thumbnails[str(size)] = self.fs.save(FileStorage(thumbnail),
-                                                          name(size, 'png'),
+                                                          name(size),
                                                           **kwargs)
         return self.filename
 

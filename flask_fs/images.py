@@ -54,7 +54,7 @@ def resize(file, size):
 
         image.thumbnail(size, Image.ANTIALIAS)
 
-        return _img_to_file(image)
+    return _img_to_file(image)
 
 
 def optimize(file):
@@ -66,6 +66,6 @@ def _img_to_file(image):
     out = six.BytesIO()
     if image.mode == 'CMYK':
         image = image.convert('RGBA')
-    image.save(out, 'png', optimize=True)
+    image.save(out, image.format or 'png', optimize=True)
     out.seek(0)
     return out

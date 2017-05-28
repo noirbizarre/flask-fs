@@ -227,14 +227,10 @@ class FileFieldTest(MongoEngineTestCase):
         assert tester.file.filename == expected_filename
 
 
-class ImageFieldTest(MongoEngineTestCase):
-    @pytest.fixture
-    def image(self, binfile):
-        return open(binfile, 'rb')
-
+class ImageFieldTestMixin(MongoEngineTestCase):
     @pytest.fixture
     def resource(self, utils, image):
-        return utils.filestorage('flask.png', image)
+        return utils.filestorage('flask.{0}'.format(self.ext), image)
 
     def test_default_validate(self, storage):
         class Tester(db.Document):
@@ -253,7 +249,7 @@ class ImageFieldTest(MongoEngineTestCase):
         class Tester(db.Document):
             image = ImageField(fs=storage)
 
-        filename = 'test.png'
+        filename = 'test.{0}'.format(self.ext)
 
         tester = Tester()
         tester.image.save(image, filename)
@@ -283,7 +279,7 @@ class ImageFieldTest(MongoEngineTestCase):
         class Tester(db.Document):
             image = ImageField(fs=storage)
 
-        filename = 'flask.png'
+        filename = 'flask.{0}'.format(self.ext)
 
         tester = Tester()
         tester.image.save(resource)
@@ -315,8 +311,8 @@ class ImageFieldTest(MongoEngineTestCase):
         class Tester(db.Document):
             image = ImageField(fs=storage)
 
-        filename = 'flask.png'
-        filename_original = 'flask-original.png'
+        filename = 'flask.{0}'.format(self.ext)
+        filename_original = 'flask-original.{0}'.format(self.ext)
 
         tester = Tester()
         tester.image.save(resource)
@@ -355,8 +351,8 @@ class ImageFieldTest(MongoEngineTestCase):
         class Tester(db.Document):
             image = ImageField(fs=storage, optimize=True)
 
-        filename = 'flask.png'
-        filename_original = 'flask-original.png'
+        filename = 'flask.{0}'.format(self.ext)
+        filename_original = 'flask-original.{0}'.format(self.ext)
 
         tester = Tester()
         tester.image.save(resource)
@@ -397,8 +393,8 @@ class ImageFieldTest(MongoEngineTestCase):
         class Tester(db.Document):
             image = ImageField(fs=storage, max_size=max_size)
 
-        filename = 'flask.png'
-        filename_original = 'flask-original.png'
+        filename = 'flask.{0}'.format(self.ext)
+        filename_original = 'flask-original.{0}'.format(self.ext)
 
         tester = Tester()
         tester.image.save(resource)
@@ -439,9 +435,9 @@ class ImageFieldTest(MongoEngineTestCase):
         class Tester(db.Document):
             image = ImageField(fs=storage, thumbnails=sizes)
 
-        filename = 'flask.png'
-        filename_150 = 'flask-150.png'
-        filename_32 = 'flask-32.png'
+        filename = 'flask.{0}'.format(self.ext)
+        filename_150 = 'flask-150.{0}'.format(self.ext)
+        filename_32 = 'flask-32.{0}'.format(self.ext)
 
         tester = Tester()
         tester.image.save(resource)
@@ -491,9 +487,9 @@ class ImageFieldTest(MongoEngineTestCase):
         sizes = [150, 32]
         bbox = (10, 10, 100, 100)
 
-        filename = 'flask.png'
-        filename_150 = 'flask-150.png'
-        filename_32 = 'flask-32.png'
+        filename = 'flask.{0}'.format(self.ext)
+        filename_150 = 'flask-150.{0}'.format(self.ext)
+        filename_32 = 'flask-32.{0}'.format(self.ext)
 
         class Tester(db.Document):
             image = ImageField(fs=storage, thumbnails=sizes)
@@ -552,10 +548,10 @@ class ImageFieldTest(MongoEngineTestCase):
         sizes = [32]
         bbox = (10, 10, 100, 100)
 
-        filename = 'flask.png'
-        filename_32 = 'flask-32.png'
+        filename = 'flask.{0}'.format(self.ext)
+        filename_32 = 'flask-32.{0}'.format(self.ext)
 
-        filename2 = 'flask2.png'
+        filename2 = 'flask2.{0}'.format(self.ext)
 
         class Tester(db.Document):
             image = ImageField(fs=storage, thumbnails=sizes)
@@ -563,7 +559,7 @@ class ImageFieldTest(MongoEngineTestCase):
 
         tester = Tester()
         tester.image.save(resource, bbox=bbox)
-        tester.image2.save(resource, filename='flask2.png')
+        tester.image2.save(resource, filename='flask2.{0}'.format(self.ext))
         tester.validate()
 
         assert tester.image
@@ -597,9 +593,9 @@ class ImageFieldTest(MongoEngineTestCase):
         sizes = [150, 32]
         bbox = (10, 10, 100, 100)
 
-        filename = 'flask.png'
-        filename_150 = 'flask-150.png'
-        filename_32 = 'flask-32.png'
+        filename = 'flask.{0}'.format(self.ext)
+        filename_150 = 'flask-150.{0}'.format(self.ext)
+        filename_32 = 'flask-32.{0}'.format(self.ext)
 
         class Tester(db.Document):
             image = ImageField(fs=storage, thumbnails=sizes)
@@ -621,11 +617,11 @@ class ImageFieldTest(MongoEngineTestCase):
     def test_best_match(self, storage, resource):
         sizes = [150, 32]
 
-        # filename = 'flask.png'
-        filename_150 = 'flask-150.png'
-        filename_32 = 'flask-32.png'
+        # filename = 'flask.{0}'.format(self.ext)
+        filename_150 = 'flask-150.{0}'.format(self.ext)
+        filename_32 = 'flask-32.{0}'.format(self.ext)
 
-        filename2 = 'flask2.png'
+        filename2 = 'flask2.{0}'.format(self.ext)
 
         class Tester(db.Document):
             image = ImageField(fs=storage, thumbnails=sizes)
@@ -660,7 +656,7 @@ class ImageFieldTest(MongoEngineTestCase):
         class Tester(db.Document):
             image = ImageField(fs=storage, upload_to=upload_to)
 
-        filename = 'flask.png'
+        filename = 'flask.{0}'.format(self.ext)
 
         tester = Tester()
         tester.image.save(resource)
@@ -686,7 +682,7 @@ class ImageFieldTest(MongoEngineTestCase):
         class Tester(db.Document):
             image = ImageField(fs=storage, upload_to=lambda o: upload_to)
 
-        filename = 'flask.png'
+        filename = 'flask.{0}'.format(self.ext)
 
         tester = Tester()
         tester.image.save(resource)
@@ -714,7 +710,7 @@ class ImageFieldTest(MongoEngineTestCase):
         tester.image.save(resource)
         tester.validate()
 
-        expected_filename = 'prefix/filename.png'
+        expected_filename = 'prefix/filename.{0}'.format(self.ext)
         assert tester.image
         assert tester.image.filename == expected_filename
         assert expected_filename in storage
@@ -732,7 +728,7 @@ class ImageFieldTest(MongoEngineTestCase):
         class Tester(db.Document):
             image = ImageField(fs=storage, basename=lambda o: 'prefix/filename')
 
-        expected_filename = 'other.png'
+        expected_filename = 'other.{0}'.format(self.ext)
 
         tester = Tester()
         tester.image.save(resource, expected_filename)
@@ -755,8 +751,8 @@ class ImageFieldTest(MongoEngineTestCase):
         class Tester(db.Document):
             image = ImageField(fs=storage, optimize=True)
 
-        filename = 'flask.png'
-        filename_original = 'flask-original.png'
+        filename = 'flask.{0}'.format(self.ext)
+        filename_original = 'flask-original.{0}'.format(self.ext)
 
         storage.write(filename, image)
 
@@ -795,3 +791,21 @@ class ImageFieldTest(MongoEngineTestCase):
                 assert original.size == source.size
                 assert optimized.size == source.size
         assert os.stat(path_optimized).st_size < os.stat(path_original).st_size
+
+
+class ImageFieldPngTest(ImageFieldTestMixin):
+    ext = 'png'
+
+    @pytest.fixture
+    def image(self, pngfile):
+        with open(pngfile, 'rb') as f:
+            yield f
+
+
+class ImageFieldJpgTest(ImageFieldTestMixin):
+    ext = 'jpg'
+
+    @pytest.fixture
+    def image(self, jpgfile):
+        with open(jpgfile, 'rb') as f:
+            yield f

@@ -10,7 +10,8 @@ from werkzeug.datastructures import FileStorage
 
 import pytest
 
-BIN_FILE = os.path.join(os.path.dirname(__file__), 'flask.png')
+PNG_FILE = os.path.join(os.path.dirname(__file__), 'flask.png')
+JPG_FILE = os.path.join(os.path.dirname(__file__), 'flask.jpg')
 
 
 class TestConfig:
@@ -37,7 +38,17 @@ def app():
 
 @pytest.fixture
 def binfile():
-    return BIN_FILE
+    return PNG_FILE
+
+
+@pytest.fixture
+def pngfile():
+    return PNG_FILE
+
+
+@pytest.fixture
+def jpgfile():
+    return JPG_FILE
 
 
 class Utils(object):
