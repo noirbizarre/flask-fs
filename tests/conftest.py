@@ -10,6 +10,7 @@ from werkzeug.datastructures import FileStorage
 
 import pytest
 
+
 BIN_FILE = os.path.join(os.path.dirname(__file__), 'flask.png')
 
 

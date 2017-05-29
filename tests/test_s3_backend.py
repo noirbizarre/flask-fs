@@ -46,6 +46,7 @@ class S3BackendTest(BackendTestCase):
             access_key=S3_ACCESS_KEY,
             secret_key=S3_SECRET_KEY
         )
+        S3Backend.backend_name = 's3'
         self.backend = S3Backend('test', self.config)
         yield
         for obj in self.bucket.objects.all():

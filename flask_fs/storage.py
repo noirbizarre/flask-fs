@@ -21,6 +21,9 @@ CONF_PREFIX = 'FS_'
 PREFIX = '{0}_FS_'
 BACKEND_PREFIX = 'FS_{0}_'
 
+KWARGS_CONFIG_SUFFIX = 'KWARGS_'
+KWARGS_CONFIG_ATTR_SUFFIX = '_kwargs'
+
 # Config keys that should be overwritten from backend config
 BACKEND_EXCLUDED_CONFIG = ('BACKEND', 'URL', 'ROOT')
 
@@ -81,15 +84,13 @@ class Storage(object):
     def __init__(self, name='files',
                  extensions=DEFAULTS,
                  upload_to=None,
-                 overwrite=False,
-                 **kwargs):
+                 overwrite=False):
         self.name = name
         self.extensions = extensions
         self.config = Config()
         self.upload_to = upload_to
         self.backend = None
         self.overwrite = overwrite
-        self.kwargs = kwargs
 
     def configure(self, app):
         '''
@@ -100,13 +101,20 @@ class Storage(object):
             FS_{BACKEND_NAME}_{KEY} then
             {STORAGE_NAME}_FS_{KEY}
 
+        Also support new style connection config:
+
+            FS_{BACKEND_NAME}_KWARGS_{KEY} and
+            {STORAGE_NAME}_FS_KWARGS_{KEY}
+
         If no configuration is set for a given key, global config is taken as default.
         '''
-        config = Config()
+        self.config = config = Config()
 
         prefix = PREFIX.format(self.name.upper())
         backend_key = '{0}BACKEND'.format(prefix)
         self.backend_name = app.config.get(backend_key, app.config['FS_BACKEND'])
+        self.backend_kwargs_config = self.backend_name + KWARGS_CONFIG_ATTR_SUFFIX
+
         self.backend_prefix = BACKEND_PREFIX.format(self.backend_name.upper())
         backend_excluded_keys = [''.join((self.backend_prefix, k)) for k in BACKEND_EXCLUDED_CONFIG]
 
@@ -116,20 +124,47 @@ class Storage(object):
 
         # Set backend level values
         for key, value in app.config.items():
-            if key.startswith(self.backend_prefix) and key not in backend_excluded_keys:
+            if key.startswith(self.backend_prefix + KWARGS_CONFIG_SUFFIX):
+                backend_conf_key = key.replace(self.backend_prefix + KWARGS_CONFIG_SUFFIX, '')
+                self._build_backend_dict(backend_conf_key, value)
+            elif key.startswith(self.backend_prefix) and key not in backend_excluded_keys:
                 config[key.replace(self.backend_prefix, '').lower()] = value
 
         # Set storage level values
         for key, value in app.config.items():
-            if key.startswith(prefix):
+            if key.startswith(prefix + KWARGS_CONFIG_SUFFIX):
+                storage_conf_key = key.replace(prefix + KWARGS_CONFIG_SUFFIX, '')
+                self._build_backend_dict(storage_conf_key, value)
+            elif key.startswith(prefix):
                 config[key.replace(prefix, '').lower()] = value
 
         if self.backend_name not in BACKENDS:
             raise ValueError('Unknown backend "{0}"'.format(self.backend_name))
         backend_class = BACKENDS[self.backend_name].load()
         backend_class.backend_name = self.backend_name
-        self.backend = backend_class(self.name, config, **self.kwargs)
-        self.config = config
+        self.backend = backend_class(self.name, config)
+
+    def _build_backend_dict(self, key, value):
+        '''
+        Build the internal config dict
+
+        This function will build backend related configuration information:
+
+            config.{backend_name}_kwargs.key (for connections related initialization)
+
+        It is used to segregate new style kwargs "connection" parameters
+        '''
+        # support backward compatibility. If all uppercase, lowercase now
+        # otherwise, keep as is.
+        if key.isupper():
+            key = key.lower()
+
+        # add connection sepecific key
+        config_key = self.backend_kwargs_config
+
+        # seat config value on backend name key
+        self.config.setdefault(config_key, Config())
+        self.config[config_key].update({key: value})
 
     @cached_property
     def root(self):

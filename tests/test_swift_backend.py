@@ -30,6 +30,7 @@ class SwiftBackendTest(BackendTestCase):
             'key': KEY,
             'authurl': AUTHURL,
         })
+        SwiftBackend.backend_name = 'swift'
         self.backend = SwiftBackend(self.container, self.config)
 
         yield

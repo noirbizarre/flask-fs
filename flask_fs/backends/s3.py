@@ -13,6 +13,7 @@ from botocore.exceptions import ClientError
 
 from . import BaseBackend
 
+
 log = logging.getLogger(__name__)
 
 
@@ -27,7 +28,7 @@ class S3Backend(BaseBackend):
     - `access_key`: The AWS credential access key
     - `secret_key`: The AWS credential secret key
     '''
-    def __init__(self, name, config, **kwargs):
+    def __init__(self, name, config):
         super(S3Backend, self).__init__(name, config)
 
         self.session = boto3.session.Session()
@@ -35,16 +36,23 @@ class S3Backend(BaseBackend):
 
         self.s3 = self.session.resource('s3',
                                         config=self.s3config,
-                                        endpoint_url=config.endpoint,
-                                        region_name=config.region,
-                                        aws_access_key_id=config.access_key,
-                                        aws_secret_access_key=config.secret_key, **kwargs)
+                                        **config.s3_kwargs)
         self.bucket = self.s3.Bucket(name)
 
         try:
             self.bucket.load()
         except ClientError:
             self.bucket.create()
+
+    def _convert_legacy_config(self):
+        if 'endpoint' in self.config:
+            self.kwargs_config.setdefault('endpoint_url', self.config.endpoint)
+        if 'region' in self.config:
+            self.kwargs_config.setdefault('region_name', self.config.region)
+        if 'access_key' in self.config:
+            self.kwargs_config.setdefault('aws_access_key_id', self.config.access_key)
+        if 'secret_key' in self.config:
+            self.kwargs_config.setdefault('aws_secret_access_key', self.config.secret_key)
 
     def exists(self, filename):
         try:

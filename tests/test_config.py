@@ -8,6 +8,8 @@ from flask import url_for
 from flask_fs import Storage, DEFAULTS, NONE
 from flask_fs.backends.local import LocalBackend
 
+from flask_fs.storage import KWARGS_CONFIG_SUFFIX
+
 
 def test_default_configuration(app):
     app.configure()
@@ -112,3 +114,58 @@ def test_configurable_extensions(app):
     files = Storage('files', NONE)
     app.configure(files, FS_ALLOW=['txt'])
     assert files.extension_allowed('txt')
+
+
+def test_configure_new_backend_level_kwargs_parameters(app):
+    import swiftclient
+
+    swift = Storage('files')
+    try:
+        app.configure(swift,
+                      **{'FS_SWIFT_' + KWARGS_CONFIG_SUFFIX + 'authurl':
+                          'http://127.0.0.1:8080/auth/v1.0',
+                         'FS_SWIFT_' + KWARGS_CONFIG_SUFFIX + 'user': 'bob',
+                         'FS_SWIFT_' + KWARGS_CONFIG_SUFFIX + 'key': '12345',
+                         'FS_SWIFT_' + KWARGS_CONFIG_SUFFIX + 'auth_version': '2',
+                         'FS_SWIFT_' + KWARGS_CONFIG_SUFFIX + 'tenant_name': 'my_tenant',
+                         'FS_BACKEND': 'swift'
+                         }
+                      )
+    except swiftclient.exceptions.ClientException:
+        # this is expected, as we don't install python-keystoneclient (for authv2)
+        # here, we only want to evaluate config values.
+        # we should think about separating config phase from backend construction
+        # to aid this kind of testing.
+        pass
+
+    assert swift.backend_name == 'swift'
+    assert swift.config.swift_kwargs.authurl == 'http://127.0.0.1:8080/auth/v1.0'
+    assert swift.config.swift_kwargs.auth_version == '2'
+    assert swift.config.swift_kwargs.user == 'bob'
+    assert swift.config.swift_kwargs.key == '12345'
+
+
+def test_configure_new_storage_level_kwargs_parameters(app):
+    gridfs = Storage('files')
+    app.configure(gridfs,
+                  **{'FILES_FS_' + KWARGS_CONFIG_SUFFIX + 'host': 'localhost',
+                     'FS_GRIDFS_MONGO_DB': 'fstest',
+                     'FS_BACKEND': 'gridfs'
+                     }
+                  )
+
+    assert gridfs.config.gridfs_kwargs.host == 'localhost'
+    assert 'mongo_db' in gridfs.config
+
+
+def test_support_old_config_to_kwargs_config_dict(app):
+    files = Storage('files')
+    app.configure(files,
+                  FS_BACKEND='s3',
+                  FS_S3_ENDPOINT='http://localhost:9000',
+                  FS_S3_REGION='us-east-1',
+                  FS_S3_ACCESS_KEY='ABCDEFGHIJKLMNOQRSTU',
+                  FS_S3_SECRET_KEY='abcdefghiklmnoqrstuvwxyz1234567890abcdef',
+                  )
+
+    assert files.config.s3_kwargs.endpoint_url == 'http://localhost:9000'

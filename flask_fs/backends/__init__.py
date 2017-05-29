@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from ..storage import Config, KWARGS_CONFIG_ATTR_SUFFIX
+
 import six
 
 __all__ = [i.encode('ascii') for i in ('BaseBackend', 'DEFAULT_BACKEND')]
@@ -15,9 +17,15 @@ class BaseBackend(object):
     '''
     root = None
 
-    def __init__(self, name, config, **kwargs):
+    def __init__(self, name, config):
         self.name = name
         self.config = config
+        # ensure new connection config is in place
+        self.kwargs_config = self.config.setdefault(self.backend_name + KWARGS_CONFIG_ATTR_SUFFIX,
+                                                    Config())
+        # user may have an existing config, honour that, translating to new dict entry
+        if hasattr(self, '_convert_legacy_config'):
+            self._convert_legacy_config()
 
     def exists(self, filename):
         '''Test wether a file exists or not given its filename in the storage'''

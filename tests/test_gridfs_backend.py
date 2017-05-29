@@ -25,6 +25,7 @@ class GridFsBackendTest(BackendTestCase):
             'mongo_url': 'mongodb://localhost:27017',
             'mongo_db': TEST_DB,
         })
+        GridFsBackend.backend_name = 'gridfs'
         self.backend = GridFsBackend('test', self.config)
         yield
         self.client.drop_database(TEST_DB)
@@ -47,6 +48,10 @@ class GridFsBackendTest(BackendTestCase):
     def test_config(self):
         assert self.backend.client.address == ('localhost', 27017)
         assert self.backend.db.name == TEST_DB
+
+    def test_config_legacy_to_new(self):
+        assert 'gridfs_kwargs' in self.config
+        assert 'host' in self.config.gridfs_kwargs
 
     def test_delete_with_versions(self, faker):
         filename = 'test.txt'

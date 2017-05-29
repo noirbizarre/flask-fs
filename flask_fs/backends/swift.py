@@ -10,6 +10,7 @@ import swiftclient
 
 from . import BaseBackend
 
+
 log = logging.getLogger(__name__)
 
 
@@ -23,16 +24,21 @@ class SwiftBackend(BaseBackend):
     - `user`: The Swift user in
     - `key`: The user API Key
     '''
-    def __init__(self, name, config, **kwargs):
+    def __init__(self, name, config):
         super(SwiftBackend, self).__init__(name, config)
 
         self.conn = swiftclient.Connection(
-            user=config.user,
-            key=config.key,
-            authurl=config.authurl,
-            **kwargs
+            **config.swift_kwargs
         )
         self.conn.put_container(self.name)
+
+    def _convert_legacy_config(self):
+        if 'authurl' in self.config:
+            self.kwargs_config.setdefault('authurl', self.config.authurl)
+        if 'user' in self.config:
+            self.kwargs_config.setdefault('user', self.config.user)
+        if 'key' in self.config:
+            self.kwargs_config.setdefault('key', self.config.key)
 
     def exists(self, filename):
         try:

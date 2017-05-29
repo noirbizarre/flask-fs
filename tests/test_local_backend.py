@@ -16,6 +16,7 @@ class LocalBackendTest(BackendTestCase):
         self.config = Config({
             'root': str(tmpdir),
         })
+        LocalBackend.backend_name = 'local'
         self.backend = LocalBackend('test', self.config)
 
     def filename(self, filename):

@@ -26,12 +26,16 @@ class GridFsBackend(BaseBackend):
     - `mongo_url`: The Mongo access URL
     - `mongo_db`: The database to store the file in.
     '''
-    def __init__(self, name, config, **kwargs):
+    def __init__(self, name, config):
         super(GridFsBackend, self).__init__(name, config)
 
-        self.client = MongoClient(config.mongo_url, **kwargs)
+        self.client = MongoClient(**config.gridfs_kwargs)
         self.db = self.client[config.mongo_db]
         self.fs = GridFS(self.db, self.name)
+
+    def _convert_legacy_config(self):
+        if 'mongo_url' in self.config:
+            self.kwargs_config.setdefault('host', self.config.mongo_url)
 
     def exists(self, filename):
         return self.fs.exists(filename=filename)
