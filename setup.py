@@ -78,7 +78,7 @@ setup(
         ]
     },
     license='MIT',
-    use_2to3=True,
+    use_2to3=False,
     zip_safe=False,
     keywords='',
     classifiers=[

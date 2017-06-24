@@ -4,7 +4,7 @@ Changelog
 Current
 -------
 
-- Nothing yet
+- Fix broken packaging for Python 2.7
 
 0.4.0 (2017-06-24)
 ------------------
