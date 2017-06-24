@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 import bisect
+import io
 import logging
 import six
 
@@ -193,8 +194,9 @@ class ImageReference(FileReference):
         If optmization settings or expected sizes changed,
         they will be used for the new rendering.
         '''
-        with self.fs.open(self.original, 'rb') as img:
-            self.save(img, filename=self.filename, bbox=self.bbox, overwrite=True)
+        with self.fs.open(self.original, 'rb') as f_img:
+            img = io.BytesIO(f_img.read())  # Store the image in memory to avoid overwritting
+        self.save(img, filename=self.filename, bbox=self.bbox, overwrite=True)
 
     __call__ = best_url
 

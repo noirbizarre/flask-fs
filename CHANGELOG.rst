@@ -10,6 +10,7 @@ Current
 - Added `NONE` extensions specification
 - Added `list_files` to `Storage` to list the current bucket files
 - Image optimization preserve file type as much as possible
+- Ensure images are not overwritted before rerendering
 
 0.3.0 (2017-03-05)
 ------------------

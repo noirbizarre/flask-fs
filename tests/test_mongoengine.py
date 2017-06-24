@@ -792,6 +792,53 @@ class ImageFieldTestMixin(MongoEngineTestCase):
                 assert optimized.size == source.size
         assert os.stat(path_optimized).st_size < os.stat(path_original).st_size
 
+    def test_rerender_multiple(self, app, storage, resource, image):
+        class Tester(db.Document):
+            image = ImageField(fs=storage, max_size=100, optimize=True)
+
+        filename = 'flask.{0}'.format(self.ext)
+        filename_original = 'flask-original.{0}'.format(self.ext)
+
+        storage.write(filename_original, image)
+
+        tester = Tester()
+        tester.image.original = filename_original
+        tester.image.filename = filename
+        assert tester.to_mongo() == {
+            'image': {
+                'original': filename_original,
+                'filename': filename,
+            }
+        }
+
+        tester.image.rerender()
+        tester.save().reload()
+
+        assert tester.image
+        assert str(tester.image) == tester.image.url
+        assert tester.image.filename == filename
+        assert tester.image.original == filename_original
+        assert filename in storage
+        assert tester.to_mongo() == {
+            '_id': tester.pk,
+            'image': {
+                'filename': filename,
+                'original': filename_original,
+            }
+        }
+
+        path_original = storage.path(filename_original)
+        path_optimized = storage.path(filename)
+
+        with open(path_original, 'rb') as f_orig:
+            with open(path_optimized, 'rb') as f_optimized:
+                source = Image.open(image)
+                original = Image.open(f_orig)
+                optimized = Image.open(f_optimized)
+                assert original.size == source.size
+                assert optimized.size[0] == 100
+        assert os.stat(path_optimized).st_size < os.stat(path_original).st_size
+
 
 class ImageFieldPngTest(ImageFieldTestMixin):
     ext = 'png'
