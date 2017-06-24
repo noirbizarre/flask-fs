@@ -1,8 +1,8 @@
 Changelog
 =========
 
-Current
--------
+0.4.0 (2017-06-24)
+------------------
 
 - Added backend level configuration ``FS_{BACKEND_NAME}_{KEY}``
 - Improved backend documentation
