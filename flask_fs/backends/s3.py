@@ -42,9 +42,9 @@ class S3Backend(BaseBackend):
         self.bucket = self.s3.Bucket(name)
 
         try:
-            self.bucket.load()
-        except ClientError:
             self.bucket.create()
+        except self.s3.meta.client.exceptions.BucketAlreadyOwnedByYou:
+            pass
 
     def exists(self, filename):
         try:
