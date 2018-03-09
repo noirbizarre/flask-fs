@@ -1,7 +1,7 @@
 -r s3.pip
 -r swift.pip
 -r gridfs.pip
-sphinx
-alabaster
+sphinx==1.7.1
+alabaster==0.7.10
 pillow
-flask-mongoengine
+flask-mongoengine==0.9.5

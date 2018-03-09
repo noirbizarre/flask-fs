@@ -1,10 +1,10 @@
 -r s3.pip
 -r gridfs.pip
 -r swift.pip
-pytest
-pytest-faker
-pytest-flask
-pytest-sugar
-pytest-mock
-flask-mongoengine
+pytest==3.4.2
+pytest-faker==2.0.0
+pytest-flask==0.10.0
+pytest-sugar==0.9.1
+pytest-mock==1.7.1
+flask-mongoengine==0.9.5
 pillow

@@ -8,14 +8,9 @@ from os.path import join, abspath, dirname
 ROOT = abspath(join(dirname(__file__)))
 
 
-def lrun(cmd, *args, **kwargs):
-    '''Run a command ensuring cwd is project root'''
-    return run('cd {0} && {1}'.format(ROOT, cmd), *args, **kwargs)
-
-
-def compose(cmd):
+def compose(ctx, cmd):
     '''Run a docker-compose command'''
-    return lrun('docker-compose {0}'.format(cmd), pty=True)
+    return ctx.run('docker-compose {0}'.format(cmd), pty=True)
 
 
 @task
@@ -24,35 +19,40 @@ def clean(ctx, docs=False, bytecode=False, extra=''):
     patterns = ['build', 'dist', 'cover', 'docs/_build', '**/*.pyc', '*.egg-info', '.tox']
     for pattern in patterns:
         print('Removing {0}'.format(pattern))
-        lrun('rm -rf {0}'.format(pattern))
+        with ctx.cd(ROOT):
+            ctx.run('rm -rf {0}'.format(pattern))
 
 
 @task
 def start(ctx):
     '''Start the middlewares (docker)'''
-    compose('up -d')
-    compose('ps')
+    with ctx.cd(ROOT):
+        compose(ctx, 'up -d')
+        compose(ctx, 'ps')
 
 
 @task
 def stop(ctx, rm=False):
     '''Stop the middlewares (docker)'''
-    compose('stop')
-    if rm:
-        compose('rm --force')
+    with ctx.cd(ROOT):
+        compose(ctx, 'stop')
+        if rm:
+            compose(ctx, 'rm --force')
 
 
 @task
 def test(ctx):
     '''Run tests suite'''
-    lrun('pytest', pty=True)
+    with ctx.cd(ROOT):
+        ctx.run('pytest', pty=True)
 
 
 @task
 def cover(ctx, html=False):
     '''Run tests suite with coverage'''
     params = '--cov-report term --cov-report html' if html else ''
-    lrun('pytest --cov flask_fs {0}'.format(params), pty=True)
+    with ctx.cd(ROOT):
+        ctx.run('pytest --cov flask_fs {0}'.format(params), pty=True)
 
 
 @task
@@ -64,19 +64,22 @@ def tox(ctx):
 @task
 def qa(ctx):
     '''Run a quality report'''
-    lrun('flake8 flask_fs tests')
+    with ctx.cd(ROOT):
+        ctx.run('flake8 flask_fs tests')
 
 
 @task
 def doc(ctx):
     '''Build the documentation'''
-    lrun('cd docs && make html', pty=True)
+    with ctx.cd(ROOT):
+        ctx.run('cd docs && make html', pty=True)
 
 
 @task
 def dist(ctx):
     '''Package for distribution'''
-    lrun('python setup.py sdist bdist_wheel', pty=True)
+    with ctx.cd(ROOT):
+        ctx.run('python setup.py sdist bdist_wheel', pty=True)
 
 
 @task(start, tox, doc, qa, dist, default=True)
