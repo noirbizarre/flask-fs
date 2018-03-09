@@ -18,7 +18,7 @@ Simple and easy file storages for Flask
 Compatibility
 =============
 
-Flask-FS requires Python 2.7+ and Flask 0.10+.
+Flask-FS requires Python 2.7/3.4+ and Flask 0.10+.
 
 Amazon S3 support requires Boto3.
 

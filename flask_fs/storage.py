@@ -314,7 +314,7 @@ class Storage(object):
         Can vary from a backend to another but some are always present:
         - `filename`: the base filename (without the path/prefix)
         - `url`: the file public URL
-        - `checksum`: a checksum expressed in the form `algo:hash` 
+        - `checksum`: a checksum expressed in the form `algo:hash`
         - 'mime': the mime type
         - `modified`: the last modification date
         '''
