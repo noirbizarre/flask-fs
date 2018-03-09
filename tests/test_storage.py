@@ -419,3 +419,18 @@ def test_list_files(app, mock_backend):
     app.configure(storage)
 
     assert storage.list_files() == ['one.txt']
+
+
+def test_metadata(app, mock_backend):
+    storage = fs.Storage('test')
+    app.configure(storage)
+
+    backend = mock_backend.return_value
+    backend.metadata.return_value = {}
+
+    url = url_for('fs.get_file', filename='file.test', fs=storage.name, _external=True)
+
+    metadata = storage.metadata('file.test')
+    assert metadata['filename'] == 'file.test'
+    assert metadata['url'] == url
+    backend.metadata.assert_called_with('file.test')

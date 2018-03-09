@@ -27,6 +27,8 @@ S3_SECRET_KEY = 'abcdefghiklmnoqrstuvwxyz1234567890abcdef'
 
 
 class S3BackendTest(BackendTestCase):
+    hasher = 'md5'
+
     @pytest.fixture(autouse=True)
     def setup(self):
         self.session = boto3.session.Session()

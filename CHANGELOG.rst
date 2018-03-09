@@ -4,7 +4,7 @@ Changelog
 Current
 -------
 
-- Nothing yet
+- Added `metadata` method to `Storage` to retrieve file metadata
 
 0.4.1 (2017-06-24)
 ------------------

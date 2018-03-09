@@ -5,6 +5,7 @@ import io
 import logging
 
 from contextlib import contextmanager
+from dateutil import parser
 
 import swiftclient
 
@@ -64,3 +65,12 @@ class SwiftBackend(BaseBackend):
         headers, items = self.conn.get_container(self.name)
         for i in items:
             yield i['name']
+
+    def metadata(self, filename):
+        data = self.conn.head_object(self.name, filename)
+        return {
+            'checksum': 'md5:{0}'.format(data['etag']),
+            'size': int(data['content-length']),
+            'mime': data['content-type'],
+            'modified': parser.parse(data['last-modified']),
+        }

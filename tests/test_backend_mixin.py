@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import hashlib
 import six
+
+from datetime import datetime
 
 
 class BackendTestCase(object):
@@ -141,3 +144,15 @@ class BackendTestCase(object):
             self.put_file(f, content)
 
         assert sorted(list(self.backend.list_files())) == ['first.test', 'second.test']
+
+    def test_metadata(self, app, faker):
+        content = six.text_type(faker.sentence())
+        hasher = getattr(hashlib, self.hasher)
+        hashed = hasher(content.encode('utf8')).hexdigest()
+        self.put_file('file.txt', content)
+
+        metadata = self.backend.metadata('file.txt')
+        assert metadata['checksum'] == '{0}:{1}'.format(self.hasher, hashed)
+        assert metadata['size'] == len(content)
+        assert metadata['mime'] == 'text/plain'
+        assert isinstance(metadata['modified'], datetime)

@@ -307,6 +307,22 @@ class Storage(object):
         '''
         return self.backend.list_files()
 
+    def metadata(self, filename):
+        '''
+        Get some metadata for a given file.
+
+        Can vary from a backend to another but some are always present:
+        - `filename`: the base filename (without the path/prefix)
+        - `url`: the file public URL
+        - `checksum`: a checksum expressed in the form `algo:hash` 
+        - 'mime': the mime type
+        - `modified`: the last modification date
+        '''
+        metadata = self.backend.metadata(filename)
+        metadata['filename'] = os.path.basename(filename)
+        metadata['url'] = self.url(filename, external=True)
+        return metadata
+
     def __contains__(self, value):
         return self.exists(value)
 

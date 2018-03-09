@@ -1,19 +1,37 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import hashlib
 import io
 import logging
 import os
 
+from datetime import datetime
 from shutil import copyfileobj
 
 from flask import current_app, send_from_directory
 from werkzeug import cached_property
 from werkzeug.datastructures import FileStorage
 
+from flask_fs import files
+
 from . import BaseBackend
 
 log = logging.getLogger(__name__)
+
+
+CHUNK_SIZE = 2 ** 16
+
+
+def sha1(file):
+    hasher = hashlib.sha1()
+    blk_size_to_read = hasher.block_size * CHUNK_SIZE
+    while (True):
+        read_data = file.read(blk_size_to_read)
+        if not read_data:
+            break
+        hasher.update(read_data)
+    return hasher.hexdigest()
 
 
 class LocalBackend(BaseBackend):
@@ -87,3 +105,15 @@ class LocalBackend(BaseBackend):
     def serve(self, filename):
         '''Serve files for storages with direct file access'''
         return send_from_directory(self.root, filename)
+
+    def metadata(self, filename):
+        '''Fetch all availabe metadata'''
+        dest = self.path(filename)
+        with open(dest, 'rb', buffering=0) as f:
+            checksum = 'sha1:{0}'.format(sha1(f))
+        return {
+            'checksum': checksum,
+            'size': os.path.getsize(dest),
+            'mime': files.mime(filename),
+            'modified': datetime.fromtimestamp(os.path.getmtime(dest)),
+        }

@@ -10,6 +10,8 @@ from flask_fs.storage import Config
 
 
 class LocalBackendTest(BackendTestCase):
+    hasher = 'sha1'
+
     @pytest.fixture(autouse=True)
     def setup(self, tmpdir):
         self.test_dir = tmpdir

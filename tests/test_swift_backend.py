@@ -16,6 +16,8 @@ AUTHURL = 'http://127.0.0.1:8080/auth/v1.0'
 
 
 class SwiftBackendTest(BackendTestCase):
+    hasher = 'md5'
+
     @pytest.fixture(autouse=True)
     def setup(self):
         self.conn = swiftclient.Connection(

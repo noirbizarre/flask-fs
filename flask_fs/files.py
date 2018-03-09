@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import mimetypes
 import os.path
 
 __all__ = (
@@ -65,6 +66,13 @@ def lower_extension(filename):
     # do not treat a filename without an extension as an extension.
     # That is, do not return filename.lower().
     return filename
+
+
+def mime(filename):
+    '''
+    A basic helper to guess mime type from a filename or url
+    '''
+    return mimetypes.guess_type(filename)[0]
 
 
 class All(object):

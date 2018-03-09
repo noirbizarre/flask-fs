@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from pymongo import MongoClient
 from gridfs import GridFS
+from pymongo import MongoClient
 
 from .test_backend_mixin import BackendTestCase
 
@@ -15,6 +15,8 @@ TEST_DB = 'fstest'
 
 
 class GridFsBackendTest(BackendTestCase):
+    hasher = 'md5'
+
     @pytest.fixture(autouse=True)
     def setup(self):
         self.client = MongoClient()

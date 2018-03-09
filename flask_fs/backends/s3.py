@@ -78,6 +78,17 @@ class S3Backend(BaseBackend):
         for f in self.bucket.objects.all():
             yield f.key
 
+    def metadata(self, filename):
+        '''Fetch all availabe metadata'''
+        obj = self.bucket.Object(filename)
+        checksum = 'md5:{0}'.format(obj.e_tag[1:-1])
+        return {
+            'checksum': checksum,
+            'size': obj.content_length,
+            'mime': obj.content_type,
+            'modified': obj.last_modified,
+        }
+
     # def serve(self, filename):
     #     file = self.fs.get_last_version(filename)
     #     return send_file(file, mimetype=file.content_type)
