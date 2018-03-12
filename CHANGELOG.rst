@@ -1,8 +1,8 @@
 Changelog
 =========
 
-Current
--------
+0.5.1 (2018-03-12)
+------------------
 
 - Fix ``local`` backend ``list_files()`` nested directories handling
 
