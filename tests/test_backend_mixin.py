@@ -154,11 +154,12 @@ class BackendTestCase(object):
         self.assert_text_equal(filename, content)
 
     def test_list_files(self, faker, utils):
-        for f in ['first.test', 'second.test']:
+        files = set(['first.test', 'second.test', 'some/path/to/third.test'])
+        for f in files:
             content = six.text_type(faker.sentence())
             self.put_file(f, content)
 
-        assert sorted(list(self.backend.list_files())) == ['first.test', 'second.test']
+        assert set(self.backend.list_files()) == files
 
     def test_metadata(self, app, faker):
         content = six.text_type(faker.sentence())

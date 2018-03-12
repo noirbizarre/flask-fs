@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 import pytest
+import os
 
 from .test_backend_mixin import BackendTestCase
 
@@ -24,7 +25,11 @@ class LocalBackendTest(BackendTestCase):
         return str(self.test_dir.join(filename))
 
     def put_file(self, filename, content):
-        with open(self.filename(filename), 'wb') as f:
+        filename = self.filename(filename)
+        parent = os.path.dirname(filename)
+        if not os.path.exists(parent):
+            os.makedirs(parent)
+        with open(filename, 'wb') as f:
             f.write(self.b(content))
 
     def get_file(self, filename):

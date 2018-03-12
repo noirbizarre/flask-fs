@@ -95,8 +95,9 @@ class LocalBackend(BaseBackend):
 
     def list_files(self):
         for dirpath, dirnames, filenames in os.walk(self.root):
+            prefix = os.path.relpath(dirpath, self.root)
             for f in filenames:
-                yield f
+                yield os.path.join(prefix, f) if prefix != '.' else f
 
     def path(self, filename):
         '''Return the full path for a given filename in the storage'''

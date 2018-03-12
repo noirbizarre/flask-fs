@@ -4,13 +4,13 @@ Changelog
 Current
 -------
 
-- Nothing yet
+- Fix ``local`` backend ``list_files()`` nested directories handling
 
 0.5.0 (2018-03-12)
 ------------------
 
-- Added `metadata` method to `Storage` to retrieve file metadata
-- Force `boto3 >= 1.4.5` because of API change (lifecycle)
+- Added ``metadata`` method to ``Storage`` to retrieve file metadata
+- Force ``boto3 >= 1.4.5`` because of API change (lifecycle)
 - Drop Python 3.3 support
 - Create parent directories when opening a local file in write mode
 
