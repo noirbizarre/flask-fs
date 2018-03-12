@@ -2,13 +2,13 @@
 Flask-FS
 ========
 
-.. image:: https://travis-ci.org/noirbizarre/flask-fs.svg?tag=v0.5.1
+.. image:: https://travis-ci.org/noirbizarre/flask-fs.svg?branch=master
     :target: https://travis-ci.org/noirbizarre/flask-fs
     :alt: Build status
-.. image:: https://coveralls.io/repos/noirbizarre/flask-fs/badge.svg?tag=v0.5.1
-    :target: https://coveralls.io/r/noirbizarre/flask-fs?tag=v0.5.1
+.. image:: https://coveralls.io/repos/noirbizarre/flask-fs/badge.svg?branch=master
+    :target: https://coveralls.io/r/noirbizarre/flask-fs?branch=master
     :alt: Code coverage
-.. image:: https://readthedocs.org/projects/flask-fs/badge/?version=0.5.1
+.. image:: https://readthedocs.org/projects/flask-fs/badge/?version=latest
     :target: http://flask-fs.readthedocs.org/en/latest/
     :alt: Documentation status
 
