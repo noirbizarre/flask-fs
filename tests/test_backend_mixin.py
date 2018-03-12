@@ -63,6 +63,15 @@ class BackendTestCase(object):
 
         self.assert_text_equal(filename, content)
 
+    def test_open_write_new_file_with_prefix(self, faker):
+        filename = 'some/new/dir/test.text'
+        content = six.text_type(faker.sentence())
+
+        with self.backend.open(filename, 'w') as f:
+            f.write(content)
+
+        self.assert_text_equal(filename, content)
+
     def test_open_write_new_binary_file(self, faker):
         filename = 'test.bin'
         content = six.binary_type(faker.binary())
@@ -105,6 +114,12 @@ class BackendTestCase(object):
         self.backend.write('test.bin', utils.file(content))
 
         self.assert_bin_equal('test.bin', content)
+
+    def test_write_with_prefix(self, faker):
+        content = six.text_type(faker.sentence())
+        self.backend.write('some/path/to/test.txt', content)
+
+        self.assert_text_equal('some/path/to/test.txt', content)
 
     def test_delete(self, faker):
         content = faker.sentence()
