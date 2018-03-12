@@ -55,8 +55,15 @@ class LocalBackend(BaseBackend):
         dest = self.path(filename)
         return os.path.exists(dest)
 
+    def ensure_path(self, filename):
+        dirname = os.path.dirname(self.path(filename))
+        if not os.path.exists(dirname):
+            os.makedirs(dirname)
+
     def open(self, filename, mode='r', encoding='utf8'):
         dest = self.path(filename)
+        if 'w' in mode:
+            self.ensure_path(filename)
         if 'b' in mode:
             return open(dest, mode)
         else:
@@ -67,11 +74,7 @@ class LocalBackend(BaseBackend):
             return f.read()
 
     def write(self, filename, content):
-        dest = self.path(filename)
-        dirname = os.path.dirname(dest)
-        if not os.path.exists(dirname):
-            os.makedirs(dirname)
-
+        self.ensure_path(filename)
         with self.open(filename, 'wb') as f:
             return f.write(self.as_binary(content))
 
@@ -80,11 +83,8 @@ class LocalBackend(BaseBackend):
         return os.remove(dest)
 
     def save(self, file_or_wfs, filename):
+        self.ensure_path(filename)
         dest = self.path(filename)
-
-        folder = os.path.dirname(dest)
-        if not os.path.exists(folder):
-            os.makedirs(folder)
 
         if isinstance(file_or_wfs, FileStorage):
             file_or_wfs.save(dest)

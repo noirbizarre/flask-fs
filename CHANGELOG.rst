@@ -7,6 +7,7 @@ Current
 - Added `metadata` method to `Storage` to retrieve file metadata
 - Force `boto3 >= 1.4.5` because of API change (lifecycle)
 - Drop Python 3.3 support
+- Create parent directories when opening a local file in write mode
 
 0.4.1 (2017-06-24)
 ------------------
