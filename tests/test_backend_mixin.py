@@ -172,3 +172,25 @@ class BackendTestCase(object):
         assert metadata['size'] == len(content)
         assert metadata['mime'] == 'text/plain'
         assert isinstance(metadata['modified'], datetime)
+
+    def test_copy(self, faker):
+        content = faker.sentence()
+        self.put_file('file.test', content)
+        target = 'other/path/to/file.test2'
+
+        self.backend.copy('file.test', target)
+
+        assert self.file_exists('file.test')
+        assert self.file_exists(target)
+        self.assert_text_equal(target, content)
+
+    def test_move(self, faker):
+        content = faker.sentence()
+        self.put_file('file.test', content)
+        target = 'other/path/to/file.test2'
+
+        self.backend.move('file.test', target)
+
+        assert not self.file_exists('file.test')
+        assert self.file_exists(target)
+        self.assert_text_equal(target, content)

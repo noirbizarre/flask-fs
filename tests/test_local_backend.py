@@ -37,7 +37,7 @@ class LocalBackendTest(BackendTestCase):
             return f.read()
 
     def file_exists(self, filename):
-        return self.test_dir.join('file.test').exists()
+        return self.test_dir.join(filename).exists()
 
     def test_root(self):
         assert self.backend.root == str(self.test_dir)

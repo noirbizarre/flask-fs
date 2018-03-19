@@ -61,6 +61,10 @@ class GridFsBackend(BaseBackend):
         for version in self.fs.find({'filename': filename}):
             self.fs.delete(version._id)
 
+    def copy(self, filename, target):
+        src = self.fs.get_last_version(filename)
+        self.fs.put(src, filename=target, content_type=src.content_type)
+
     def list_files(self):
         for f in self.fs.list():
             yield f

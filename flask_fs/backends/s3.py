@@ -74,6 +74,13 @@ class S3Backend(BaseBackend):
     def delete(self, filename):
         self.bucket.Object(filename).delete()
 
+    def copy(self, filename, target):
+        src = {
+            'Bucket': self.bucket.name,
+            'Key': filename,
+        }
+        self.bucket.copy(src, target)
+
     def list_files(self):
         for f in self.bucket.objects.all():
             yield f.key

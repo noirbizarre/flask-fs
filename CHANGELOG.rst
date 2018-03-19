@@ -4,7 +4,7 @@ Changelog
 Current
 -------
 
-- Nothing yet
+- Added ``copy`` and ``move`` operations
 
 0.5.1 (2018-03-12)
 ------------------

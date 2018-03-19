@@ -39,6 +39,20 @@ class BaseBackend(object):
         '''Delete a file given its filename in the storage'''
         raise NotImplementedError('Delete operation is not implemented')
 
+    def copy(self, filename, target):
+        '''Copy a file given its filename to another path in the storage'''
+        raise NotImplementedError('Copy operation is not implemented')
+
+    def move(self, filename, target):
+        '''
+        Move a file given its filename to another path in the storage
+
+        Default implementation perform a copy then a delete.
+        Backends should overwrite it if there is a better way.
+        '''
+        self.copy(filename, target)
+        self.delete(filename)
+
     def save(self, file_or_wfs, filename, overwrite=False):
         '''
         Save a file-like object or a `werkzeug.FileStorage` with the specified filename.

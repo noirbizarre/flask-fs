@@ -7,7 +7,7 @@ import logging
 import os
 
 from datetime import datetime
-from shutil import copyfileobj
+from shutil import copyfileobj, copy2, move
 
 from flask import current_app, send_from_directory
 from werkzeug import cached_property
@@ -92,6 +92,18 @@ class LocalBackend(BaseBackend):
             with open(dest, 'wb') as out:
                 copyfileobj(file_or_wfs, out)
         return filename
+
+    def copy(self, filename, target):
+        src = self.path(filename)
+        dest = self.path(target)
+        self.ensure_path(target)
+        copy2(src, dest)
+
+    def move(self, filename, target):
+        src = self.path(filename)
+        dest = self.path(target)
+        self.ensure_path(target)
+        move(src, dest)
 
     def list_files(self):
         for dirpath, dirnames, filenames in os.walk(self.root):

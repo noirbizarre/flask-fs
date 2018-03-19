@@ -63,7 +63,7 @@ class S3BackendTest(BackendTestCase):
 
     def file_exists(self, filename):
         try:
-            self.bucket.Object('file.test').load()
+            self.bucket.Object(filename).load()
             return True
         except ClientError:
             return False

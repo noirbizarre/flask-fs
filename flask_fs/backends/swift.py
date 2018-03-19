@@ -61,6 +61,10 @@ class SwiftBackend(BaseBackend):
     def delete(self, filename):
         self.conn.delete_object(self.name, filename)
 
+    def copy(self, filename, target):
+        dest = '/'.join((self.name, target))
+        self.conn.copy_object(self.name, filename, destination=dest)
+
     def list_files(self):
         headers, items = self.conn.get_container(self.name)
         for i in items:
