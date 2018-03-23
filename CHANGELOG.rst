@@ -5,6 +5,7 @@ Current
 -------
 
 - Added ``copy`` and ``move`` operations
+- `delete` now supports directories (or prefixes for key/value stores)
 
 0.5.1 (2018-03-12)
 ------------------

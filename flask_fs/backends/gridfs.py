@@ -4,6 +4,7 @@ from __future__ import unicode_literals, absolute_import
 import codecs
 import io
 import logging
+import re
 
 from contextlib import contextmanager
 
@@ -58,7 +59,8 @@ class GridFsBackend(BaseBackend):
         return self.fs.put(self.as_binary(content), filename=filename)
 
     def delete(self, filename):
-        for version in self.fs.find({'filename': filename}):
+        regex = '^{0}'.format(re.escape(filename))
+        for version in self.fs.find({'filename': {'$regex': regex}}):
             self.fs.delete(version._id)
 
     def copy(self, filename, target):

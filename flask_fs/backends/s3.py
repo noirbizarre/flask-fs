@@ -72,7 +72,8 @@ class S3Backend(BaseBackend):
         return self.bucket.put_object(Key=filename, Body=self.as_binary(content))
 
     def delete(self, filename):
-        self.bucket.Object(filename).delete()
+        for obj in self.bucket.objects.filter(Prefix=filename):
+            obj.delete()
 
     def copy(self, filename, target):
         src = {

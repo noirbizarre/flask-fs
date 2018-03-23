@@ -5,9 +5,9 @@ import hashlib
 import io
 import logging
 import os
+import shutil
 
 from datetime import datetime
-from shutil import copyfileobj, copy2, move
 
 from flask import current_app, send_from_directory
 from werkzeug import cached_property
@@ -80,7 +80,10 @@ class LocalBackend(BaseBackend):
 
     def delete(self, filename):
         dest = os.path.join(self.root, filename)
-        return os.remove(dest)
+        if os.path.isdir(dest):
+            shutil.rmtree(dest, ignore_errors=True)
+        else:
+            os.remove(dest)
 
     def save(self, file_or_wfs, filename):
         self.ensure_path(filename)
@@ -90,20 +93,20 @@ class LocalBackend(BaseBackend):
             file_or_wfs.save(dest)
         else:
             with open(dest, 'wb') as out:
-                copyfileobj(file_or_wfs, out)
+                shutil.copyfileobj(file_or_wfs, out)
         return filename
 
     def copy(self, filename, target):
         src = self.path(filename)
         dest = self.path(target)
         self.ensure_path(target)
-        copy2(src, dest)
+        shutil.copy2(src, dest)
 
     def move(self, filename, target):
         src = self.path(filename)
         dest = self.path(target)
         self.ensure_path(target)
-        move(src, dest)
+        shutil.move(src, dest)
 
     def list_files(self):
         for dirpath, dirnames, filenames in os.walk(self.root):

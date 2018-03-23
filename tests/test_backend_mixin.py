@@ -129,6 +129,17 @@ class BackendTestCase(object):
 
         assert not self.file_exists('file.test')
 
+    def test_delete_directory(self, faker):
+        content = faker.sentence()
+        self.put_file('test/file.01', content)
+        self.put_file('test/file.02', content)
+
+        self.backend.delete('test')
+
+        assert not self.file_exists('test/file.01')
+        assert not self.file_exists('test/file.02')
+        assert not self.file_exists('test')
+
     def test_save_content(self, faker, utils):
         content = six.text_type(faker.sentence())
         storage = utils.filestorage('test.txt', content)

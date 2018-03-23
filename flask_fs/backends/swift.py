@@ -59,7 +59,12 @@ class SwiftBackend(BaseBackend):
         self.conn.put_object(self.name, filename, contents=content)
 
     def delete(self, filename):
-        self.conn.delete_object(self.name, filename)
+        if self.exists(filename):
+            self.conn.delete_object(self.name, filename)
+        else:
+            headers, items = self.conn.get_container(self.name, path=filename)
+            for i in items:
+                self.conn.delete_object(self.name, i['name'])
 
     def copy(self, filename, target):
         dest = '/'.join((self.name, target))
