@@ -3,6 +3,8 @@ from __future__ import unicode_literals
 
 import six
 
+from flask_fs import files
+
 __all__ = [i.encode('ascii') for i in ('BaseBackend', 'DEFAULT_BACKEND')]
 
 
@@ -14,6 +16,7 @@ class BaseBackend(object):
     Abstract class to implement backend.
     '''
     root = None
+    DEFAULT_MIME = 'application/octet-stream'
 
     def __init__(self, name, config):
         self.name = name
@@ -65,6 +68,21 @@ class BaseBackend(object):
         '''
         self.write(filename, file_or_wfs.read())
         return filename
+
+    def metadata(self, filename):
+        '''
+        Fetch all available metadata for a given file
+        '''
+        meta = self.get_metadata(filename)
+        # Fix backend mime misdetection
+        meta['mime'] = meta.get('mime') or files.mime(filename, self.DEFAULT_MIME)
+        return meta
+    
+    def get_metadata(self, filename):
+        '''
+        Backend specific method to retrieve metadata for a given file
+        '''
+        raise NotImplementedError('Copy operation is not implemented')
 
     def serve(self, filename):
         '''Serve a file given its filename'''

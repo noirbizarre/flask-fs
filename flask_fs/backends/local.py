@@ -122,8 +122,8 @@ class LocalBackend(BaseBackend):
         '''Serve files for storages with direct file access'''
         return send_from_directory(self.root, filename)
 
-    def metadata(self, filename):
-        '''Fetch all availabe metadata'''
+    def get_metadata(self, filename):
+        '''Fetch all available metadata'''
         dest = self.path(filename)
         with open(dest, 'rb', buffering=0) as f:
             checksum = 'sha1:{0}'.format(sha1(f))

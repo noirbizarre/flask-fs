@@ -4,8 +4,9 @@ Changelog
 Current
 -------
 
-- Added ``copy`` and ``move`` operations
-- `delete` now supports directories (or prefixes for key/value stores)
+- Added ``copy()`` and ``move()`` operations
+- `delete()` now supports directories (or prefixes for key/value stores)
+- Improve `metadata()` `mime` handling
 
 0.5.1 (2018-03-12)
 ------------------

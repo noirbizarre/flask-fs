@@ -68,11 +68,11 @@ def lower_extension(filename):
     return filename
 
 
-def mime(filename):
+def mime(filename, default=None):
     '''
     A basic helper to guess mime type from a filename or url
     '''
-    return mimetypes.guess_type(filename)[0]
+    return mimetypes.guess_type(filename)[0] or default
 
 
 class All(object):

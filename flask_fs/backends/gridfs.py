@@ -12,8 +12,6 @@ from flask import send_file
 from gridfs import GridFS
 from pymongo import MongoClient
 
-from flask_fs import files
-
 from . import BaseBackend
 
 log = logging.getLogger(__name__)
@@ -75,11 +73,11 @@ class GridFsBackend(BaseBackend):
         file = self.fs.get_last_version(filename)
         return send_file(file, mimetype=file.content_type)
 
-    def metadata(self, filename):
+    def get_metadata(self, filename):
         f = self.fs.get_last_version(filename)
         return {
             'checksum': 'md5:{0}'.format(f.md5),
             'size': f.length,
-            'mime': f.content_type or files.mime(filename),
+            'mime': f.content_type,
             'modified': f.upload_date,
         }

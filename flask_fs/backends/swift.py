@@ -75,7 +75,7 @@ class SwiftBackend(BaseBackend):
         for i in items:
             yield i['name']
 
-    def metadata(self, filename):
+    def get_metadata(self, filename):
         data = self.conn.head_object(self.name, filename)
         return {
             'checksum': 'md5:{0}'.format(data['etag']),

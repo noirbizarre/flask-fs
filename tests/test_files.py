@@ -38,3 +38,18 @@ def test_all_except():
     all_except = files.AllExcept('exe')
     assert 'csv' in all_except
     assert 'exe' not in all_except
+
+
+def test_mime_known_type():
+    assert files.mime('test.txt') == 'text/plain'
+    assert files.mime('test.csv') == 'text/csv'
+
+
+def test_mime_default_to_none():
+    assert files.mime('test') is None
+    assert files.mime('test', default=None) is None
+
+
+def test_mime_default_to_custom():
+    default = 'application/octet-stream'
+    assert files.mime('test', default=default) == default

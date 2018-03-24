@@ -184,6 +184,13 @@ class BackendTestCase(object):
         assert metadata['mime'] == 'text/plain'
         assert isinstance(metadata['modified'], datetime)
 
+    def test_metadata_unknown_mime(self, app, faker):
+        content = six.text_type(faker.sentence())
+        self.put_file('file.whatever', content)
+
+        metadata = self.backend.metadata('file.whatever')
+        assert metadata['mime'] in ('application/octet-stream', 'text/plain')
+
     def test_copy(self, faker):
         content = faker.sentence()
         self.put_file('file.test', content)
