@@ -77,7 +77,7 @@ class BaseBackend(object):
         # Fix backend mime misdetection
         meta['mime'] = meta.get('mime') or files.mime(filename, self.DEFAULT_MIME)
         return meta
-    
+
     def get_metadata(self, filename):
         '''
         Backend specific method to retrieve metadata for a given file
