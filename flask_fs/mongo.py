@@ -167,6 +167,10 @@ class ImageReference(FileReference):
         else:
             raise ValueError('Unregistered thumbnail size {0}'.format(size))
 
+    def full(self, external=False):
+        '''Get the full image URL in respect with ``max_size``'''
+        return self.fs.url(self.filename, external=external) if self.filename else None
+
     def best_url(self, size=None, external=False):
         '''
         Provide the best thumbnail for downscaling.

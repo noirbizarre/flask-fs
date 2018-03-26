@@ -650,6 +650,24 @@ class ImageFieldTestMixin(MongoEngineTestCase):
         assert tester.image2.best_url(150) == storage.url(filename2)
         assert tester.image2.best_url() == storage.url(filename2)
 
+    def test_full(self, storage, resource):
+        max_size = 150
+
+        class Tester(db.Document):
+            image = ImageField(fs=storage, max_size=max_size)
+
+        filename = 'flask.{0}'.format(self.ext)
+
+        tester = Tester()
+
+        assert tester.image.full() is None
+        assert tester.image.full(external=True) is None
+
+        tester.image.save(resource)
+
+        assert tester.image.full() == storage.url(filename)
+        assert tester.image.full(external=True) == storage.url(filename, external=True)
+
     def test_save_with_upload_to(self, storage, resource):
         upload_to = 'prefix'
 
