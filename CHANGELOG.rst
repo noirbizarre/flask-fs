@@ -1,8 +1,8 @@
 Changelog
 =========
 
-Current
--------
+0.6.0 (2018-03-27)
+------------------
 
 - Added ``copy()`` and ``move()`` operations
 - ``delete()`` now supports directories (or prefixes for key/value stores)
