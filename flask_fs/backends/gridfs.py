@@ -54,10 +54,16 @@ class GridFsBackend(BaseBackend):
         return f.read()
 
     def write(self, filename, content):
+        kwargs = {
+            'filename': filename
+        }
+
+        if hasattr(content, 'content_type'):
+            kwargs['content_type'] = content.content_type
+
         return self.fs.put(
             self.as_binary(content),
-            filename=filename,
-            content_type=content.content_type
+            **kwargs
         )
 
     def delete(self, filename):
