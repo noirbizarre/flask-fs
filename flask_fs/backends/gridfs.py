@@ -61,10 +61,7 @@ class GridFsBackend(BaseBackend):
         if hasattr(content, 'content_type'):
             kwargs['content_type'] = content.content_type
 
-        return self.fs.put(
-            self.as_binary(content),
-            **kwargs
-        )
+        return self.fs.put(self.as_binary(content), **kwargs)
 
     def delete(self, filename):
         regex = '^{0}'.format(re.escape(filename))
