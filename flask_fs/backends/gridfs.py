@@ -54,7 +54,11 @@ class GridFsBackend(BaseBackend):
         return f.read()
 
     def write(self, filename, content):
-        return self.fs.put(self.as_binary(content), filename=filename)
+        return self.fs.put(
+            self.as_binary(content),
+            filename=filename,
+            content_type=content.content_type
+        )
 
     def delete(self, filename):
         regex = '^{0}'.format(re.escape(filename))
