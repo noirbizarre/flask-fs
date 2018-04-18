@@ -4,7 +4,7 @@ Changelog
 Current
 -------
 
-- Nothing yet
+- Fix a race condition on local backend directory creation
 
 0.6.0 (2018-03-27)
 ------------------

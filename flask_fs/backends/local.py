@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import errno
 import hashlib
 import io
 import logging
@@ -58,7 +59,13 @@ class LocalBackend(BaseBackend):
     def ensure_path(self, filename):
         dirname = os.path.dirname(self.path(filename))
         if not os.path.exists(dirname):
-            os.makedirs(dirname)
+            try:
+                os.makedirs(dirname)
+            except OSError as e:
+                # Don't raise on race condition,
+                # directory has been created elsewhere
+                if e.errno != errno.EEXIST:
+                    raise
 
     def open(self, filename, mode='r', encoding='utf8'):
         dest = self.path(filename)
