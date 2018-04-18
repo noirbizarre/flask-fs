@@ -58,7 +58,7 @@ class GridFsBackend(BaseBackend):
             'filename': filename
         }
 
-        if hasattr(content, 'content_type'):
+        if hasattr(content, 'content_type') and content.content_type is not None:
             kwargs['content_type'] = content.content_type
 
         return self.fs.put(self.as_binary(content), **kwargs)
