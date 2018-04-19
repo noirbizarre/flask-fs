@@ -5,6 +5,7 @@ Current
 -------
 
 - Fix a race condition on local backend directory creation
+- Proper content type handling on GridFS (thanks to @rclement)
 
 0.6.0 (2018-03-27)
 ------------------
