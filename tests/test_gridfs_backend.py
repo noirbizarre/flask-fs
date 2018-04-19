@@ -10,12 +10,25 @@ from flask_fs.backends.gridfs import GridFsBackend
 from flask_fs.storage import Config
 
 import pytest
+import mimetypes
+import six
+
 
 TEST_DB = 'fstest'
 
 
 class GridFsBackendTest(BackendTestCase):
     hasher = 'md5'
+
+    @pytest.fixture
+    def pngimage(self, pngfile):
+        with open(pngfile, 'rb') as f:
+            yield f
+
+    @pytest.fixture
+    def jpgimage(self, jpgfile):
+        with open(jpgfile, 'rb') as f:
+            yield f
 
     @pytest.fixture(autouse=True)
     def setup(self):
@@ -58,3 +71,27 @@ class GridFsBackendTest(BackendTestCase):
 
         self.backend.delete(filename)
         assert not self.file_exists(filename)
+
+    def test_write_pngimage(self, pngimage, utils):
+        filename = 'test.png'
+        content = six.binary_type(pngimage.read())
+        content_type = mimetypes.guess_type(filename)[0]
+        f = utils.filestorage(filename, content, content_type)
+        self.backend.write(filename, f)
+
+        with self.backend.open(filename, 'rb') as f:
+            assert f.content_type == content_type
+
+        self.assert_bin_equal(filename, content)
+
+    def test_write_jpgimage(self, jpgimage, utils):
+        filename = 'test.jpg'
+        content = six.binary_type(jpgimage.read())
+        content_type = mimetypes.guess_type(filename)[0]
+        f = utils.filestorage(filename, content, content_type)
+        self.backend.write(filename, f)
+
+        with self.backend.open(filename, 'rb') as f:
+            assert f.content_type == content_type
+
+        self.assert_bin_equal(filename, content)

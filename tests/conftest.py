@@ -52,8 +52,12 @@ def jpgfile():
 
 
 class Utils(object):
-    def filestorage(self, filename, content):
-        return FileStorage(self.file(content), filename)
+    def filestorage(self, filename, content, content_type=None):
+        return FileStorage(
+            self.file(content),
+            filename,
+            content_type=content_type
+        )
 
     def file(self, content):
         if isinstance(content, six.binary_type):
