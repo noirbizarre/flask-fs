@@ -1,8 +1,8 @@
 Changelog
 =========
 
-Current
--------
+0.6.1 (2018-04-19)
+------------------
 
 - Fix a race condition on local backend directory creation
 - Proper content type handling on GridFS (thanks to @rclement)
