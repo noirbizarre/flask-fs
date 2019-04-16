@@ -44,7 +44,8 @@ Expect the following settings:
 - ``AUTHURL``: The Swift Auth URL
 - ``USER``: The Swift user in
 - ``KEY``: The user API Key
-
+- ``AUTH_VERSION``: The OpenStack auth version (optional, default: ``'1'``)
+- ``OS_OPTIONS``: The OpenStack options as a dictonnary with keys such as `region_name` (optional, default: ``None``)
 
 Custom backends
 ---------------
