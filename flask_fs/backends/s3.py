@@ -41,10 +41,13 @@ class S3Backend(BaseBackend):
                                         aws_secret_access_key=config.secret_key)
         self.bucket = self.s3.Bucket(name)
 
-        try:
-            self.bucket.create()
-        except self.s3.meta.client.exceptions.BucketAlreadyOwnedByYou:
-            pass
+        if self.bucket.creation_date is None:
+            # Boto3 does not automatically get the region from the conneciton information
+            # They use the default US Standard region.
+            # Ref: https://github.com/boto/boto3/issues/781
+            self.bucket.create(CreateBucketConfiguration={
+                'LocationConstraint': self.s3.meta.client.meta.region_name
+            })
 
     def exists(self, filename):
         try:
