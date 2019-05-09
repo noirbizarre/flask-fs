@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 import logging
+from datetime import datetime
 
 from .test_backend_mixin import BackendTestCase
 
@@ -9,6 +10,8 @@ from flask_fs.backends.s3 import S3Backend
 from flask_fs.storage import Config
 
 import boto3
+import hashlib
+import six
 
 from botocore.exceptions import ClientError
 
@@ -67,6 +70,18 @@ class S3BackendTest(BackendTestCase):
             return True
         except ClientError:
             return False
+
+    def test_metadata(self, app, faker):
+        content = six.text_type(faker.sentence())
+        hasher = getattr(hashlib, self.hasher)
+        hashed = hasher(content.encode('utf8')).hexdigest()
+        self.put_file('file.txt', content)
+
+        metadata = self.backend.metadata('file.txt')
+        assert metadata['checksum'] == '{0}:{1}'.format(self.hasher, hashed)
+        assert metadata['size'] == len(content)
+        assert metadata['mime'] == 'application/octet-stream'
+        assert isinstance(metadata['modified'], datetime)
 
     # def test_root(self):
     #     self.assertEqual(self.backend.root, self.test_dir)
