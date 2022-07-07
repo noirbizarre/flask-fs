@@ -8,7 +8,7 @@ tests = tox
 publish = python setup.py bdist_wheel upload
 clean = inv clean
 files =
-    README.rst
+    README.md
 
 [bump]
 unsuffix = true

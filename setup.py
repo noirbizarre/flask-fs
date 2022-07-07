@@ -26,7 +26,7 @@ def pip(filename):
 
 
 long_description = '\n'.join((
-    open('README.rst').read(),
+    open('README.md').read(),
     open('CHANGELOG.rst').read(),
     ''
 ))
