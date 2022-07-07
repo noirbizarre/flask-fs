@@ -58,3 +58,6 @@ target/
 
 # Atom
 *.cson
+
+# Jetbrain
+.idea/
