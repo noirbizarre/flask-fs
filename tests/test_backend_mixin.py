@@ -1,17 +1,13 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 import hashlib
-import six
 
 from datetime import datetime
 
 
-class BackendTestCase(object):
+class BackendTestCase:
 
     def b(self, content):
-        if isinstance(content, six.string_types):
-            content = six.b(content)
+        if isinstance(content, str):
+            content = content.encode('utf-8')
         return content
 
     def put_file(self, filename, content):
@@ -29,7 +25,7 @@ class BackendTestCase(object):
 
     def assert_text_equal(self, filename, expected):
         data = self.get_file(filename)
-        assert data == six.b(expected)
+        assert data == expected.encode('utf-8')
 
     def test_exists(self):
         self.put_file('file.test', 'test')
@@ -37,26 +33,26 @@ class BackendTestCase(object):
         assert not self.backend.exists('other.test')
 
     def test_open_read(self, faker):
-        content = six.text_type(faker.sentence())
+        content = str(faker.sentence())
         self.put_file('file.test', content)
 
         with self.backend.open('file.test') as f:
             data = f.read()
-            assert isinstance(data, six.text_type)
+            assert isinstance(data, str)
             assert data == content
 
     def test_open_read_binary(self, faker):
-        content = six.binary_type(faker.binary())
+        content = bytes(faker.binary())
         self.put_file('file.test', content)
 
         with self.backend.open('file.test', 'rb') as f:
             data = f.read()
-            assert isinstance(data, six.binary_type)
+            assert isinstance(data, bytes)
             assert data == content
 
     def test_open_write_new_file(self, faker):
         filename = 'test.text'
-        content = six.text_type(faker.sentence())
+        content = str(faker.sentence())
 
         with self.backend.open(filename, 'w') as f:
             f.write(content)
@@ -65,7 +61,7 @@ class BackendTestCase(object):
 
     def test_open_write_new_file_with_prefix(self, faker):
         filename = 'some/new/dir/test.text'
-        content = six.text_type(faker.sentence())
+        content = str(faker.sentence())
 
         with self.backend.open(filename, 'w') as f:
             f.write(content)
@@ -74,7 +70,7 @@ class BackendTestCase(object):
 
     def test_open_write_new_binary_file(self, faker):
         filename = 'test.bin'
-        content = six.binary_type(faker.binary())
+        content = bytes(faker.binary())
 
         with self.backend.open(filename, 'wb') as f:
             f.write(content)
@@ -83,8 +79,8 @@ class BackendTestCase(object):
 
     def test_open_write_existing_file(self, faker):
         filename = 'test.txt'
-        content = six.text_type(faker.sentence())
-        self.put_file(filename, six.text_type(faker.sentence()))
+        content = str(faker.sentence())
+        self.put_file(filename, str(faker.sentence()))
 
         with self.backend.open(filename, 'w') as f:
             f.write(content)
@@ -92,31 +88,31 @@ class BackendTestCase(object):
         self.assert_text_equal(filename, content)
 
     def test_read(self, faker):
-        content = six.text_type(faker.sentence())
+        content = str(faker.sentence())
         self.put_file('file.test', content)
 
-        assert self.backend.read('file.test') == six.b(content)
+        assert self.backend.read('file.test') == content.encode('utf-8')
 
     def test_write_text(self, faker):
-        content = six.text_type(faker.sentence())
+        content = str(faker.sentence())
         self.backend.write('test.txt', content)
 
         self.assert_text_equal('test.txt', content)
 
     def test_write_binary(self, faker):
-        content = six.binary_type(faker.binary())
+        content = bytes(faker.binary())
         self.backend.write('test.bin', content)
 
         self.assert_bin_equal('test.bin', content)
 
     def test_write_file(self, faker, utils):
-        content = six.binary_type(faker.binary())
+        content = bytes(faker.binary())
         self.backend.write('test.bin', utils.file(content))
 
         self.assert_bin_equal('test.bin', content)
 
     def test_write_with_prefix(self, faker):
-        content = six.text_type(faker.sentence())
+        content = str(faker.sentence())
         self.backend.write('some/path/to/test.txt', content)
 
         self.assert_text_equal('some/path/to/test.txt', content)
@@ -141,14 +137,14 @@ class BackendTestCase(object):
         assert not self.file_exists('test')
 
     def test_save_content(self, faker, utils):
-        content = six.text_type(faker.sentence())
+        content = str(faker.sentence())
         storage = utils.filestorage('test.txt', content)
         self.backend.save(storage, 'test.txt')
 
         self.assert_text_equal('test.txt', content)
 
     def test_save_from_file(self, faker, utils):
-        content = six.binary_type(faker.binary())
+        content = bytes(faker.binary())
         f = utils.file(content)
         self.backend.save(f, 'test.png')
 
@@ -158,7 +154,7 @@ class BackendTestCase(object):
 
     def test_save_with_filename(self, faker, utils):
         filename = 'somewhere/test.test'
-        content = six.text_type(faker.sentence())
+        content = str(faker.sentence())
         storage = utils.filestorage('test.txt', content)
         self.backend.save(storage, filename)
 
@@ -167,13 +163,13 @@ class BackendTestCase(object):
     def test_list_files(self, faker, utils):
         files = set(['first.test', 'second.test', 'some/path/to/third.test'])
         for f in files:
-            content = six.text_type(faker.sentence())
+            content = str(faker.sentence())
             self.put_file(f, content)
 
         assert set(self.backend.list_files()) == files
 
     def test_metadata(self, app, faker):
-        content = six.text_type(faker.sentence())
+        content = str(faker.sentence())
         hasher = getattr(hashlib, self.hasher)
         hashed = hasher(content.encode('utf8')).hexdigest()
         self.put_file('file.txt', content)
@@ -185,7 +181,7 @@ class BackendTestCase(object):
         assert isinstance(metadata['modified'], datetime)
 
     def test_metadata_unknown_mime(self, app, faker):
-        content = six.text_type(faker.sentence())
+        content = str(faker.sentence())
         self.put_file('file.whatever', content)
 
         metadata = self.backend.metadata('file.whatever')

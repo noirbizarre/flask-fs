@@ -14,6 +14,8 @@ Flask-FS
 
 Simple and easy file storages for Flask
 
+Flask-RESTX is a community driven fork of `Flask-RESTPlus <https://github.com/noirbizarre/flask-restplus>`_.
+
 
 Compatibility
 =============

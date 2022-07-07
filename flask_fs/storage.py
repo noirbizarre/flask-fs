@@ -1,12 +1,9 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 import pkg_resources
 import os.path
 
 from flask import current_app, url_for, request, abort
-from six.moves.urllib.parse import urljoin
-from werkzeug import secure_filename, FileStorage, cached_property
+from urllib.parse import urljoin
+from werkzeug.utils import secure_filename, FileStorage, cached_property
 
 from .errors import UnauthorizedFileType, FileExists, OperationNotSupported, FileNotFound
 from .files import DEFAULTS, extension, lower_extension
@@ -50,7 +47,7 @@ class Config(dict):
             raise AttributeError('Unknown attribute: ' + name)
 
 
-class Storage(object):
+class Storage:
     '''
     This represents a single set of files.
     Each Storage is independent of the others.

@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 import codecs
 import io
 import logging
@@ -28,7 +25,7 @@ class S3Backend(BaseBackend):
     - `secret_key`: The AWS credential secret key
     '''
     def __init__(self, name, config):
-        super(S3Backend, self).__init__(name, config)
+        super().__init__(name, config)
 
         self.session = boto3.session.Session()
         self.s3config = boto3.session.Config(signature_version='s3v4')

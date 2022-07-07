@@ -1,7 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 import re
 
 from os.path import join, dirname
@@ -35,9 +32,7 @@ long_description = '\n'.join((
 ))
 
 s3_require = pip('s3.pip')
-swift_require = pip('swift.pip')
-gridfs_require = pip('gridfs.pip')
-all_require = s3_require + swift_require + gridfs_require
+all_require = s3_require
 tests_require = pip('test.pip')
 doc_require = pip('doc.pip')
 qa_require = pip('qa.pip')
@@ -49,9 +44,9 @@ setup(
     version=__import__('flask_fs').__version__,
     description=__import__('flask_fs').__description__,
     long_description=long_description,
-    url='https://github.com/noirbizarre/flask-fs',
-    author='Axel Haustant',
-    author_email='noirbizarre@gmail.com',
+    url='https://github.com/etalab/flask-fs',
+    author='Etalab',
+    author_email='etalab@data.gouv.fr',
     packages=find_packages(),
     include_package_data=True,
     install_requires=pip('install.pip'),
@@ -60,8 +55,6 @@ setup(
         'doc': doc_require,
         'test': tests_require,
         's3': s3_require,
-        'swift': swift_require,
-        'gridfs': gridfs_require,
         'all': all_require,
         'test': tests_require,
         'qa': tests_require,
@@ -72,8 +65,6 @@ setup(
         'fs.backend': [
             'local = flask_fs.backends.local:LocalBackend',
             's3 = flask_fs.backends.s3:S3Backend [s3]',
-            'gridfs = flask_fs.backends.gridfs:GridFsBackend [gridfs]',
-            'swift = flask_fs.backends.swift:SwiftBackend [swift]',
             'mock = flask_fs.backends.mock:MockBackend',
         ]
     },

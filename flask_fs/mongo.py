@@ -1,10 +1,6 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 import bisect
 import io
 import logging
-import six
 
 from os.path import splitext
 
@@ -18,7 +14,7 @@ from .images import make_thumbnail, resize, optimize
 log = logging.getLogger(__name__)
 
 
-class FileReference(object):
+class FileReference:
     '''Implements the FileField interface'''
     def __init__(self, fs=None, filename=None, upload_to=None, basename=None,
                  instance=None, name=None):
@@ -76,7 +72,7 @@ class ImageReference(FileReference):
     '''Implements the ImageField interface'''
     def __init__(self, original=None, max_size=None, thumbnail_sizes=None, thumbnails=None,
                  bbox=None, optimize=None, **kwargs):
-        super(ImageReference, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self._original = original
         self.max_size = max_size
         self.thumbnails = thumbnails or {}
@@ -85,7 +81,7 @@ class ImageReference(FileReference):
         self.thumbnail_sizes = thumbnail_sizes
 
     def to_mongo(self):
-        data = super(ImageReference, self).to_mongo()
+        data = super().to_mongo()
 
         if self._original:
             data['original'] = self._original
@@ -215,7 +211,7 @@ class FileField(BaseField):
         self.fs = fs
         self.upload_to = upload_to
         self.basename = basename
-        super(FileField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def proxy(self, filename=None, instance=None, **kwargs):
         return self.proxy_class(
@@ -232,14 +228,14 @@ class FileField(BaseField):
         if not isinstance(value, self.proxy_class):
             if isinstance(value, dict):
                 value = self.proxy(**value)
-            elif isinstance(value, six.text_type):
+            elif isinstance(value, str):
                 value = self.proxy(filename=value)
         return value
 
     def __set__(self, instance, value):
         if not isinstance(value, self.proxy_class):
             value = self.proxy(filename=value, instance=instance)
-        return super(FileField, self).__set__(instance, value)
+        return super().__set__(instance, value)
 
     def __get__(self, instance, owner):
         if instance is None:
@@ -272,10 +268,10 @@ class ImageField(FileField):
         self.max_size = max_size
         self.thumbnail_sizes = thumbnails
         self.optimize = optimize
-        super(ImageField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def proxy(self, **kwargs):
-        return super(ImageField, self).proxy(max_size=self.max_size,
+        return super().proxy(max_size=self.max_size,
                                              thumbnail_sizes=self.thumbnail_sizes,
                                              optimize=self.optimize,
                                              **kwargs)

@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 from os.path import join
 
 from .__about__ import __version__, __description__  # noqa: Facade pattern

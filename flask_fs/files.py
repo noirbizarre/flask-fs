@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 import mimetypes
 import os.path
 
@@ -75,7 +72,7 @@ def mime(filename, default=None):
     return mimetypes.guess_type(filename)[0] or default
 
 
-class All(object):
+class All:
     '''
     This type can be used to allow all extensions.
     There is a predefined instance named `ALL`.
@@ -84,7 +81,7 @@ class All(object):
         return True
 
 
-class DisallowAll(object):
+class DisallowAll:
     '''
     This type can be used to disallow all extensions.
     There is a predefined instance named `NONE`.
@@ -100,7 +97,7 @@ ALL = All()
 NONE = DisallowAll()
 
 
-class AllExcept(object):
+class AllExcept:
     '''
     This can be used to allow all file types except certain ones.
 

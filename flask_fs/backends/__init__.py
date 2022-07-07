@@ -1,8 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
-import six
-
 from flask_fs import files
 
 __all__ = [i.encode('ascii') for i in ('BaseBackend', 'DEFAULT_BACKEND')]
@@ -11,7 +6,7 @@ __all__ = [i.encode('ascii') for i in ('BaseBackend', 'DEFAULT_BACKEND')]
 DEFAULT_BACKEND = 'local'
 
 
-class BaseBackend(object):
+class BaseBackend:
     '''
     Abstract class to implement backend.
     '''
@@ -92,7 +87,7 @@ class BaseBackend(object):
         '''Perform content encoding for binary write'''
         if hasattr(content, 'read'):
             return content.read()
-        elif isinstance(content, six.text_type):
+        elif isinstance(content, str):
             return content.encode(encoding)
         else:
             return content

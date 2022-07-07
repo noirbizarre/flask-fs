@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 import errno
 import hashlib
 import io
@@ -11,7 +8,7 @@ import shutil
 from datetime import datetime
 
 from flask import current_app, send_from_directory
-from werkzeug import cached_property
+from werkzeug.utils import cached_property
 from werkzeug.datastructures import FileStorage
 
 from flask_fs import files

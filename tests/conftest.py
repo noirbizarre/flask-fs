@@ -1,9 +1,5 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 import io
 import os
-import six
 
 from flask import Flask
 from werkzeug.datastructures import FileStorage
@@ -51,7 +47,7 @@ def jpgfile():
     return JPG_FILE
 
 
-class Utils(object):
+class Utils:
     def filestorage(self, filename, content, content_type=None):
         return FileStorage(
             self.file(content),
@@ -60,9 +56,9 @@ class Utils(object):
         )
 
     def file(self, content):
-        if isinstance(content, six.binary_type):
+        if isinstance(content, bytes):
             return io.BytesIO(content)
-        elif isinstance(content, six.string_types):
+        elif isinstance(content, str):
             return io.BytesIO(content.encode('utf-8'))
         else:
             return content

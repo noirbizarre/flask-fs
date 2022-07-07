@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals, absolute_import
-
 from invoke import run, task
 
 from os.path import join, abspath, dirname

@@ -1,11 +1,9 @@
-# -*- coding: utf-8 -*-
 '''
 This module handle image operations (thumbnailing, resizing...)
 '''
-from __future__ import unicode_literals, division
 
+import io
 import logging
-import six
 
 from PIL import Image
 
@@ -63,7 +61,7 @@ def optimize(file):
 
 
 def _img_to_file(image):
-    out = six.BytesIO()
+    out = io.BytesIO()
     if image.mode == 'CMYK':
         image = image.convert('RGBA')
     image.save(out, image.format or 'png', optimize=True)

@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals, division
-
 import filecmp
 import os
 
@@ -16,7 +13,7 @@ import pytest
 db = MongoEngine()
 
 
-class MongoEngineTestCase(object):
+class MongoEngineTestCase:
     @pytest.fixture(autouse=True)
     def storage(self, app, tmpdir):
         app.instance_path = str(tmpdir)
